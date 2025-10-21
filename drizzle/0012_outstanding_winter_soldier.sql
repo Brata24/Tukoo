@@ -1,0 +1,2 @@
+ALTER TABLE `user_pos` ADD `merchant_id` int NOT NULL;--> statement-breakpoint
+ALTER TABLE `user_pos` ADD CONSTRAINT `user_pos_merchant_id_merchant_id_fk` FOREIGN KEY (`merchant_id`) REFERENCES `merchant`(`id`) ON DELETE no action ON UPDATE no action;

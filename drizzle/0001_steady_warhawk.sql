@@ -1,0 +1,1 @@
+ALTER TABLE `user` MODIFY COLUMN `recovery_code` binary(64) NOT NULL;
