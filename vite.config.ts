@@ -6,6 +6,8 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
 		allowedHosts: [
+			'beta.tukoo.web.id',
+			'.beta.tukoo.web.id', // Allow 
 			'tukoo.web.id',
 			'.tukoo.web.id', // Allow all subdomains
 			'tukoo.test',

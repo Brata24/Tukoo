@@ -1,1 +1,0 @@
-ALTER TABLE `user` MODIFY COLUMN `totp_key` binary(256);

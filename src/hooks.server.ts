@@ -86,13 +86,13 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
 const posHandle: Handle = async ({ event, resolve }) => {
 	const hostname = event.url.host;
-	if (hostname !== 'tukoo.test' && hostname !== 'tukoo.web.id' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+	if (hostname !== 'beta.tukoo.test' && hostname !== 'beta.tukoo.web.id' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
 
 		let subdomain = '';
-		if (hostname.endsWith('.tukoo.test')) {
-			subdomain = hostname.replace('.tukoo.test', '');
-		} else if (hostname.endsWith('.tukoo.web.id')) {
-			subdomain = hostname.replace('.tukoo.web.id', '');
+		if (hostname.endsWith('.beta.tukoo.test')) {
+			subdomain = hostname.replace('.beta.tukoo.test', '');
+		} else if (hostname.endsWith('.beta.tukoo.web.id')) {
+			subdomain = hostname.replace('.beta.tukoo.web.id', '');
 		} else if (hostname.includes('.') && !hostname.startsWith('www.')) {
 			subdomain = hostname.split('.')[0];
 		}

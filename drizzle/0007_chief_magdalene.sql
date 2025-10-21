@@ -1,1 +1,0 @@
-ALTER TABLE `user` ADD `profile_picture` varchar(255) DEFAULT '' NOT NULL;
