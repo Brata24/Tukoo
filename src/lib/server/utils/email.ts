@@ -3,61 +3,61 @@ import type { Transporter } from 'nodemailer';
 import { env } from '$env/dynamic/private';
 
 export interface EmailOptions {
-	to: string | string[];
-	subject: string;
-	text?: string;
-	html?: string;
-	
-	from?: string;
-	
-	fromName?: string;
-	
-	fromEmail?: string;
-	cc?: string | string[];
-	bcc?: string | string[];
-	replyTo?: string;
-	attachments?: Array<{
-		filename: string;
-		content?: string | Buffer;
-		path?: string;
-		contentType?: string;
-	}>;
+    to: string | string[];
+    subject: string;
+    text?: string;
+    html?: string;
+
+    from?: string;
+
+    fromName?: string;
+
+    fromEmail?: string;
+    cc?: string | string[];
+    bcc?: string | string[];
+    replyTo?: string;
+    attachments?: Array<{
+        filename: string;
+        content?: string | Buffer;
+        path?: string;
+        contentType?: string;
+    }>;
 }
 
 /**
  * Create and configure nodemailer transporter
  */
 function createTransporter(): Transporter {
-	const requireEnv = (name: string, value: string | undefined) => {
-		if (!value || value.length === 0) {
-			throw new Error(`${name} is not set`);
-		}
-		return value;
-	};
+    const requireEnv = (name: string, value: string | undefined) => {
+        if (!value || value.length === 0) {
+            throw new Error(`${name} is not set`);
+        }
+        return value;
+    };
 
-	
-	const host = requireEnv('SMTP_HOST', env.SMTP_HOST);
-	const user = requireEnv('SMTP_USER', env.SMTP_USER);
-	const pass = requireEnv('SMTP_PASSWORD', env.SMTP_PASSWORD);
-	const portStr = env.SMTP_PORT ?? '587';
-	const port = Number.parseInt(portStr);
-	if (Number.isNaN(port) || port <= 0) {
-		throw new Error(`SMTP_PORT is invalid: ${portStr}`);
-	}
-	return nodemailer.createTransport({
-		host,
-		port,
-		secure: port === 465,
-		auth: {
-			user,
-			pass
-		},
-		pool: true,
-		maxConnections: 5,
-		maxMessages: 100,
-		rateDelta: 1000,
-		rateLimit: 10
-	});
+
+    const host = requireEnv('SMTP_HOST', env.SMTP_HOST);
+    const user = requireEnv('SMTP_USER', env.SMTP_USER);
+    const pass = requireEnv('SMTP_PASSWORD', env.SMTP_PASSWORD);
+    const portStr = env.SMTP_PORT ?? '587';
+    const port = Number.parseInt(portStr);
+    if (Number.isNaN(port) || port <= 0) {
+        throw new Error(`SMTP_PORT is invalid: ${portStr}`);
+    }
+    return nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: {
+            user,
+            pass
+        },
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 100,
+        rateDelta: 1000,
+        rateLimit: 10
+    });
 }
 
 /**
@@ -66,51 +66,86 @@ function createTransporter(): Transporter {
  * @returns Promise with send result
  */
 export async function sendEmail(options: EmailOptions): Promise<{
-	success: boolean;
-	messageId?: string;
-	error?: string;
+    success: boolean;
+    messageId?: string;
+    error?: string;
 }> {
-	try {
-		const transporter = createTransporter();
+    try {
+        // const transporter = createTransporter();
 
 
-		await transporter.verify();
+        // await transporter.verify();
 
 
-		const to = Array.isArray(options.to) ? options.to.join(', ') : options.to;
-		const cc = options.cc ? (Array.isArray(options.cc) ? options.cc.join(', ') : options.cc) : undefined;
-		const bcc = options.bcc ? (Array.isArray(options.bcc) ? options.bcc.join(', ') : options.bcc) : undefined;
+        // const to = Array.isArray(options.to) ? options.to.join(', ') : options.to;
+        // const cc = options.cc ? (Array.isArray(options.cc) ? options.cc.join(', ') : options.cc) : undefined;
+        // const bcc = options.bcc ? (Array.isArray(options.bcc) ? options.bcc.join(', ') : options.bcc) : undefined;
 
 
-		const fromHeader = options.from ?? (() => {
-			const displayName = options.fromName ?? env.SMTP_FROM_NAME ?? 'Tukoo';
-			const fromAddress = options.fromEmail ?? env.SMTP_FROM_EMAIL ?? env.SMTP_USER;
-			return `"${displayName}" <${fromAddress}>`;
-		})();
+        // const fromHeader = options.from ?? (() => {
+        // 	const displayName = options.fromName ?? env.SMTP_FROM_NAME ?? 'Tukoo';
+        // 	const fromAddress = options.fromEmail ?? env.SMTP_FROM_EMAIL ?? env.SMTP_USER;
+        // 	return `"${displayName}" <${fromAddress}>`;
+        // })();
 
-		const info = await transporter.sendMail({
-			from: fromHeader,
-			to,
-			cc,
-			bcc,
-			subject: options.subject,
-			text: options.text,
-			html: options.html,
-			replyTo: options.replyTo,
-			attachments: options.attachments
-		});
-		console.log('Email sent successfully:', info.messageId);
-		return {
-			success: true,
-			messageId: info.messageId
-		};
-	} catch (error) {
-		console.error('Error sending email:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Failed to send email'
-		};
-	}
+        // const info = await transporter.sendMail({
+        // 	from: fromHeader,
+        // 	to,
+        // 	cc,
+        // 	bcc,
+        // 	subject: options.subject,
+        // 	text: options.text,
+        // 	html: options.html,
+        // 	replyTo: options.replyTo,
+        // 	attachments: options.attachments
+        // });
+        // console.log('Email sent successfully:', info.messageId);
+        // return {
+        // 	success: true,
+        // 	messageId: info.messageId
+        // };
+
+        const brevoApiKey = env.BREVO_API_KEY ?? '';
+        if (!brevoApiKey || brevoApiKey.length === 0) {
+            throw new Error('BREVO_API_KEY is not set');
+        }
+
+        const response = await fetch(`https://api.brevo.com/v3/smtp/email`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': brevoApiKey
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                "sender": {
+                    "name": options.fromName ?? "Tukoo",
+                    "email": options.fromEmail ?? "general@tukoo.web.id"
+                },
+                "to": [
+                    {
+                        "email": options.to,
+                        "name": "Recipient"
+                    }
+                ],
+               
+                subject: options.subject,
+                textContent: options.text,
+                htmlContent: options.html,
+            })
+        });
+        const data = await response.json();
+       
+        return {
+            success: data?.success ?? false,
+            messageId: data.messageId
+        };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to send email'
+        };
+    }
 }
 
 
@@ -118,14 +153,14 @@ export async function sendEmail(options: EmailOptions): Promise<{
  * Send OTP verification email for registration
  */
 export async function sendOtpReset(
-	to: string,
-	userName: string,
-	otpCode: string,
-	expiryMinutes: number = 10
+    to: string,
+    userName: string,
+    otpCode: string,
+    expiryMinutes: number = 10
 ): Promise<{ success: boolean; error?: string }> {
-	const subject = 'Password Reset Requested - OTP Code';
+    const subject = 'Password Reset Requested - OTP Code';
 
-	const html = `
+    const html = `
 		<!DOCTYPE html>
 <html>
 
@@ -305,7 +340,7 @@ export async function sendOtpReset(
 </html>
 	`;
 
-	const text = `Reset Password Requested
+    const text = `Reset Password Requested
 
 Hi ${userName},
 
@@ -319,21 +354,21 @@ This code will expire in ${expiryMinutes} minutes. If you didn't request this co
 This is an automated message, please do not reply.
 © ${new Date().getFullYear()} Tukoo. All rights reserved.`;
 
-	return await sendEmail({ fromEmail: "reset@tukoo.web.id", fromName: "Tukoo Reset Verification", to, subject, html, text });
+    return await sendEmail({ fromEmail: "reset@tukoo.web.id", fromName: "Tukoo Reset Verification", to, subject, html, text });
 }
 
 /**
  * Send OTP verification email for registration
  */
 export async function sendOtpEmail(
-	to: string,
-	userName: string,
-	otpCode: string,
-	expiryMinutes: number = 10
+    to: string,
+    userName: string,
+    otpCode: string,
+    expiryMinutes: number = 10
 ): Promise<{ success: boolean; error?: string }> {
-	const subject = 'Verify Your Email - OTP Code';
+    const subject = 'Verify Your Email - OTP Code';
 
-	const html = `
+    const html = `
 		<!DOCTYPE html>
 <html>
 
@@ -515,7 +550,7 @@ export async function sendOtpEmail(
 </html>
 	`;
 
-	const text = `Verify Your Email
+    const text = `Verify Your Email
 
 Hi ${userName},
 
@@ -529,20 +564,20 @@ This code will expire in ${expiryMinutes} minutes. If you didn't request this co
 This is an automated message, please do not reply.
 © ${new Date().getFullYear()} Tukoo. All rights reserved.`;
 
-	return await sendEmail({ fromEmail: "auth@tukoo.web.id", fromName: "Tukoo Auth Verification", to, subject, html, text });
+    return await sendEmail({ fromEmail: "auth@tukoo.web.id", fromName: "Tukoo Auth Verification", to, subject, html, text });
 }
 
 /**
  * Send a welcome email to a new user
  */
 export async function sendWelcomeEmail(
-	to: string,
-	userName: string,
-	merchantName: string
+    to: string,
+    userName: string,
+    merchantName: string
 ): Promise<{ success: boolean; error?: string }> {
-	const subject = `Welcome to ${merchantName} - Your Account is Ready!`;
+    const subject = `Welcome to ${merchantName} - Your Account is Ready!`;
 
-	const html = `
+    const html = `
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -574,7 +609,7 @@ export async function sendWelcomeEmail(
 		</html>
 	`;
 
-	const text = `Welcome to ${merchantName}!
+    const text = `Welcome to ${merchantName}!
 
 Hi ${userName},
 
@@ -588,21 +623,21 @@ ${merchantName} Team
 ---
 This is an automated email. Please do not reply to this message.`;
 
-	return await sendEmail({ to, subject, html, text });
+    return await sendEmail({ to, subject, html, text });
 }
 
 /**
  * Send password reset email
  */
 export async function sendPasswordResetEmail(
-	to: string,
-	userName: string,
-	newPassword: string,
-	merchantName: string
+    to: string,
+    userName: string,
+    newPassword: string,
+    merchantName: string
 ): Promise<{ success: boolean; error?: string }> {
-	const subject = 'Your Password Has Been Reset';
+    const subject = 'Your Password Has Been Reset';
 
-	const html = `
+    const html = `
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -640,7 +675,7 @@ export async function sendPasswordResetEmail(
 		</html>
 	`;
 
-	const text = `Password Reset
+    const text = `Password Reset
 
 Hi ${userName},
 
@@ -658,25 +693,25 @@ ${merchantName} Team
 ---
 This is an automated email. Please do not reply to this message.`;
 
-	return await sendEmail({ to, subject, html, text });
+    return await sendEmail({ to, subject, html, text });
 }
 
 /**
  * Send order notification email
  */
 export async function sendOrderNotificationEmail(
-	to: string,
-	orderDetails: {
-		orderNumber: string;
-		tableName: string;
-		items: Array<{ name: string; quantity: number; price: number }>;
-		total: number;
-	},
-	merchantName: string
+    to: string,
+    orderDetails: {
+        orderNumber: string;
+        tableName: string;
+        items: Array<{ name: string; quantity: number; price: number }>;
+        total: number;
+    },
+    merchantName: string
 ): Promise<{ success: boolean; error?: string }> {
-	const subject = `New Order #${orderDetails.orderNumber} - ${merchantName}`;
+    const subject = `New Order #${orderDetails.orderNumber} - ${merchantName}`;
 
-	const itemsHtml = orderDetails.items.map(item => `
+    const itemsHtml = orderDetails.items.map(item => `
 		<tr>
 			<td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${item.name}</td>
 			<td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
@@ -684,7 +719,7 @@ export async function sendOrderNotificationEmail(
 		</tr>
 	`).join('');
 
-	const html = `
+    const html = `
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -734,11 +769,11 @@ export async function sendOrderNotificationEmail(
 		</html>
 	`;
 
-	const itemsText = orderDetails.items.map(item =>
-		`${item.name} x${item.quantity} - Rp ${item.price.toLocaleString('id-ID')}`
-	).join('\n');
+    const itemsText = orderDetails.items.map(item =>
+        `${item.name} x${item.quantity} - Rp ${item.price.toLocaleString('id-ID')}`
+    ).join('\n');
 
-	const text = `New Order Received!
+    const text = `New Order Received!
 
 Order Number: #${orderDetails.orderNumber}
 Table: ${orderDetails.tableName}
@@ -751,5 +786,5 @@ Total: Rp ${orderDetails.total.toLocaleString('id-ID')}
 ---
 This is an automated email. Please do not reply to this message.`;
 
-	return await sendEmail({ to, subject, html, text });
+    return await sendEmail({ to, subject, html, text });
 }
