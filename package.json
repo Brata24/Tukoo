@@ -8,7 +8,7 @@
 	"scripts": {
 		"start": "node build",
 		"dev": "vite dev",
-		"build": "vite build && drizzle-kit migrate",
+		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
