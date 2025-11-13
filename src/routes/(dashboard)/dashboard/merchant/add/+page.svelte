@@ -156,7 +156,7 @@
 				</div>
 				<p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">
 					Subdomain unik untuk merchant (contoh: <code class="text-blue-600 dark:text-blue-400"
-						>my-merchant.hostdomain.com</code
+						>my-merchant.tukoo.web.id</code
 					>). Otomatis dihasilkan dari nama, tapi bisa diedit.
 				</p>
 				<p class="mt-1 text-xs text-gray-400 dark:text-neutral-500">

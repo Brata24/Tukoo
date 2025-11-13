@@ -363,7 +363,7 @@
 								<td class="px-6 py-4 whitespace-nowrap">
 									<div class="text-sm text-gray-900 dark:text-neutral-200">
 										<code class="bg-gray-100 dark:bg-neutral-700 px-2 py-1 rounded text-xs">
-											{merchant.slug}.hostdomain.com
+											{merchant.slug}.tukoo.web.id
 										</code>
 									</div>
 								</td>
