@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "73f52f47-a60e-457d-94e0-9deca0000a7e",
+  "id": "27df6424-348f-4efb-9db8-e557cb73fa66",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cart_item": {
@@ -278,10 +278,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "email_verification_request_user_id_user_id_fk": {
-          "name": "email_verification_request_user_id_user_id_fk",
+        "email_verification_request_user_id_users_id_fk": {
+          "name": "email_verification_request_user_id_users_id_fk",
           "tableFrom": "email_verification_request",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -420,10 +420,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "merchant_user_id_user_id_fk": {
-          "name": "merchant_user_id_user_id_fk",
+        "merchant_user_id_users_id_fk": {
+          "name": "merchant_user_id_users_id_fk",
           "tableFrom": "merchant",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -868,10 +868,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "password_reset_session_user_id_user_id_fk": {
-          "name": "password_reset_session_user_id_user_id_fk",
+        "password_reset_session_user_id_users_id_fk": {
+          "name": "password_reset_session_user_id_users_id_fk",
           "tableFrom": "password_reset_session",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1405,10 +1405,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "session_user_id_user_id_fk": {
-          "name": "session_user_id_user_id_fk",
+        "session_user_id_users_id_fk": {
+          "name": "session_user_id_users_id_fk",
           "tableFrom": "session",
-          "tableTo": "user",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
@@ -1482,8 +1482,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "user": {
-      "name": "user",
+    "users": {
+      "name": "users",
       "columns": {
         "id": {
           "name": "id",
@@ -1569,16 +1569,16 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "user_id": {
-          "name": "user_id",
+        "users_id": {
+          "name": "users_id",
           "columns": [
             "id"
           ]
         }
       },
       "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "columns": [
             "email"
           ]
