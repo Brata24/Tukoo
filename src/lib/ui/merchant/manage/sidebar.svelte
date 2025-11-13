@@ -14,7 +14,7 @@
 		secondaryColor = "#f3f4f6",
 		primaryTextColor = "#1f2937",
 		secondaryTextColor = "#111827",
-		logo = "/profile/default.jpg"
+	logo = "/storage/profile/default.jpg"
 	}: Props = $props();
 
 	let bgColor = $state(primaryColor);

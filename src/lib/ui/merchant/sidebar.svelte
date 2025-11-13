@@ -81,7 +81,7 @@
 						<div class="relative">
 							<img
 								class="inline-block object-cover object-center shrink-0 size-12 rounded-full ring-2 ring-white dark:ring-neutral-800"
-								src={userData.profile_picture || "/profile/default.jpg"}
+								src={userData.profile_picture || "/storage/profile/default.jpg"}
 								alt="Avatar"
 							/>
 							<span
@@ -105,7 +105,7 @@
 					>
 						<img
 							class="inline-block object-cover object-center shrink-0 size-11 rounded-lg border border-gray-200 dark:border-neutral-700"
-							src={userData.merchant_logo || "/profile/default.jpg"}
+							src={userData.merchant_logo || "/storage/profile/default.jpg"}
 							alt="Merchant Logo"
 						/>
 						<div class="flex-1 min-w-0">

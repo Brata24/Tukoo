@@ -10,6 +10,10 @@ import {
 import { getCategoriesByMerchant } from '$lib/server/category';
 import { saveUploadedFile, deleteUploadedFile } from '$lib/server/utils/file-storage';
 
+const isManagedMerchantPhoto = (path: string): boolean => {
+	return path.startsWith('/storage/merchants/') || path.startsWith('/merchants/');
+};
+
 export const load: PageServerLoad = async (event) => {
 	const merchant = event.locals.merchant;
 	const merchantId = event.locals.userPos?.merchantId;
@@ -93,7 +97,7 @@ export const actions: Actions = {
 					}
 
 					// Delete old photo if it exists and is not the default
-					if (existingPhoto && existingPhoto.startsWith('/merchants/')) {
+				if (existingPhoto && isManagedMerchantPhoto(existingPhoto)) {
 						try {
 							await deleteUploadedFile(existingPhoto);
 							console.log('Old photo deleted:', existingPhoto);

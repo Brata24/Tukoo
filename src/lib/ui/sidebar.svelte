@@ -83,7 +83,7 @@ bg-gradient-to-b from-white to-gray-50 border-e border-gray-200 shadow-xl dark:f
 						<div class="relative">
 							<img
 								class="inline-block object-cover object-center shrink-0 size-12 rounded-full ring-2 ring-white dark:ring-neutral-800"
-								src={userData.profile_picture || "/profile/default.jpg"}
+								src={userData.profile_picture || "/storage/profile/default.jpg"}
 								alt="Avatar"
 							/>
 							<span class="absolute bottom-0 right-0 block size-3 rounded-full bg-green-400 ring-2 ring-white dark:ring-neutral-800"></span>

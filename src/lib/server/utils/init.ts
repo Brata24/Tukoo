@@ -1,29 +1,13 @@
-import { ensureDirectoryExists } from './file-storage.js';
-import path from 'path';
-
 /**
- * Initialize required directories for the application
+ * Legacy no-op initializer kept for backwards compatibility.
+ * Previously created local directories for file uploads; all files now live in S3.
  */
 export async function initializeDirectories(): Promise<void> {
-    const staticPath = path.join(process.cwd(), 'static');
-    
-    // Create required directories
-    const requiredDirs = [
-        path.join(staticPath, 'profile'),
-        path.join(staticPath, 'documents'),
-        path.join(staticPath, 'uploads')
-    ];
-
-    for (const dir of requiredDirs) {
-        await ensureDirectoryExists(dir);
-    }
-    
-    console.log('✅ All required directories initialized');
+    console.log('✅ Remote storage active – no local directories to initialize');
 }
 
 /**
- * Initialize directories on application startup
- * Call this in your app initialization or server setup
+ * Initialize directories on application startup (no-op with remote storage)
  */
 export function initializeApp(): void {
     initializeDirectories().catch(console.error);

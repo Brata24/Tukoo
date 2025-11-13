@@ -3,6 +3,10 @@ import { deleteProduct, verifyProductOwnership, getProductById } from '$lib/serv
 import { getCategoriesByMerchant } from '$lib/server/category';
 import { deleteUploadedFile } from '$lib/server/utils/file-storage';
 
+const isManagedMerchantPhoto = (path: string): boolean => {
+	return path.startsWith('/storage/merchants/') || path.startsWith('/merchants/');
+};
+
 export const load = async (event: any) => {
 	const merchantId = event.locals.userPos?.merchantId;
 	
@@ -42,7 +46,7 @@ export const actions = {
 			const productToDelete = await getProductById(productId);
 			
 			// Delete product photo if it exists
-			if (productToDelete?.photo && productToDelete.photo.startsWith('/merchants/')) {
+			if (productToDelete?.photo && isManagedMerchantPhoto(productToDelete.photo)) {
 				try {
 					await deleteUploadedFile(productToDelete.photo);
 					console.log('Product photo deleted:', productToDelete.photo);

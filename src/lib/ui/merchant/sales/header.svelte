@@ -73,7 +73,7 @@
 
 				<img
 					class="inline-block object-cover object-center shrink-0 size-8 rounded-full"
-					src={"/profile/default.jpg"}
+					src={"/storage/profile/default.jpg"}
 					alt="Avatar"
 				/>
 			</div>

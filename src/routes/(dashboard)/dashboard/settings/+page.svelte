@@ -101,7 +101,7 @@
 							<div class="flex items-center gap-5">
 								<img
 									class="inline-block size-16 object-cover rounded-full ring-2 ring-white dark:ring-neutral-900"
-									src={data.user?.profile_picture || "/profile/default.jpg"}
+									src={data.user?.profile_picture || "/storage/profile/default.jpg"}
 									alt="Current Avatar"
 								/>
 								<div class="flex gap-x-2">

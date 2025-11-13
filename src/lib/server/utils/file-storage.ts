@@ -1,10 +1,9 @@
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { buildPublicUrl, extractStorageKeyFromUrl, getS3Client, s3Config } from './s3-client';
 
 export interface FileStorageOptions {
-    /** Directory name inside static folder (e.g., 'profile', 'documents') */
+    /** Directory prefix to group files in the bucket (e.g., 'profile', 'documents') */
     directory: string;
     /** Maximum file size in bytes (default: 5MB) */
     maxSize?: number;
@@ -17,8 +16,8 @@ export interface FileStorageOptions {
 export interface FileStorageResult {
     /** Public URL path to access the file */
     publicUrl: string;
-    /** Full file path on disk */
-    filePath: string;
+    /** Storage key (path) inside the S3 bucket */
+    storageKey: string;
     /** Generated filename */
     fileName: string;
 }
@@ -48,38 +47,37 @@ export async function saveUploadedFile(file: File, options: FileStorageOptions):
         throw new Error(`File size ${Math.round(file.size / (1024 * 1024))}MB exceeds maximum allowed size of ${maxSizeMB}MB`);
     }
 
-    // Create target directory if it doesn't exist
-    const targetDir = path.join(process.cwd(), 'static', directory);
-    await ensureDirectoryExists(targetDir);
-
     // Generate filename
     const fileExtension = file.name.split('.').pop() || 'bin';
     const fileName = customFileName 
         ? `${customFileName}.${fileExtension}`
         : `${uuidv4()}.${fileExtension}`;
     
-    const filePath = path.join(targetDir, fileName);
+    const normalizedDir = directory.replace(/(^\/+|\/+$)/g, '');
+    const storageKey = normalizedDir ? `${normalizedDir}/${fileName}` : fileName;
 
     // Convert file to buffer and save
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, buffer);
+    const client = getS3Client();
 
-    // Return file information
+    try {
+        await client.send(new PutObjectCommand({
+            Bucket: s3Config.bucketName,
+            Key: storageKey,
+            Body: buffer,
+            ContentType: file.type || 'application/octet-stream',
+            ACL: s3Config.objectAcl
+        }));
+    } catch (error) {
+        console.error('Failed to upload file to S3', error);
+        throw new Error('Failed to upload file');
+    }
+
     return {
-        publicUrl: `/${directory}/${fileName}`,
-        filePath,
+        publicUrl: buildPublicUrl(storageKey),
+        storageKey,
         fileName
     };
-}
-
-/**
- * Ensure a directory exists, create it if it doesn't
- * @param dirPath - Full path to the directory
- */
-export async function ensureDirectoryExists(dirPath: string): Promise<void> {
-    if (!existsSync(dirPath)) {
-        await mkdir(dirPath, { recursive: true });
-    }
 }
 
 /**
@@ -118,11 +116,16 @@ export async function saveDocumentFile(file: File): Promise<string> {
  */
 export async function deleteUploadedFile(publicUrl: string): Promise<void> {
     try {
-        const filePath = path.join(process.cwd(), 'static', publicUrl);
-        const { unlink } = await import('fs/promises');
-        await unlink(filePath);
+        const key = extractStorageKeyFromUrl(publicUrl);
+        if (!key) {
+            return;
+        }
+        const client = getS3Client();
+        await client.send(new DeleteObjectCommand({
+            Bucket: s3Config.bucketName,
+            Key: key
+        }));
     } catch (error) {
-        console.warn('Failed to delete file:', publicUrl, error);
-        
+        console.warn('Failed to delete file from S3:', publicUrl, error);
     }
 }
