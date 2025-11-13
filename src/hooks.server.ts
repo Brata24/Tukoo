@@ -86,7 +86,7 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
 const posHandle: Handle = async ({ event, resolve }) => {
 	const hostname = event.url.host;
-	if (hostname !== 'tukoo.test' && hostname !== 's3.tukoo.test'&& hostname !== 'cdn.tukoo.test' && hostname !== 'tukoo.web.id' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+	if (hostname !== 'tukoo.test' && hostname !== 'tukoo.web.id' && hostname !== 'localhost' && hostname !== '127.0.0.1') {
 
 		let subdomain = '';
 		if (hostname.endsWith('.tukoo.test')) {
