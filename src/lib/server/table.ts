@@ -124,5 +124,5 @@ export async function togglePayAtCashier(id: number): Promise<void> {
 export function generateTableQrUrl(merchantSlug: string, qrToken: string): string {
 	// This would be your domain - adjust accordingly
 	const baseUrl = process.env.PUBLIC_BASE_URL || 'http://localhost:5173';
-	return `${merchantSlug}.${baseUrl}/order/${qrToken}`;
+	return `https://${merchantSlug}.${baseUrl}/order/${qrToken}`;
 }
