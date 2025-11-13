@@ -151,7 +151,7 @@
 						placeholder="my-merchant"
 					/>
 					<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-						<span class="text-gray-500 text-sm dark:text-neutral-400">.hostdomain.com</span>
+						<span class="text-gray-500 text-sm dark:text-neutral-400">.tukoo.web.id</span>
 					</div>
 				</div>
 				<p class="mt-1 text-xs text-gray-500 dark:text-neutral-400">

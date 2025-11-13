@@ -570,7 +570,7 @@
 								{/if}
 								<div class="text-left">
 									<p class="font-medium text-gray-900 dark:text-neutral-200">{merchantToDelete.name}</p>
-									<p class="text-xs text-gray-500 dark:text-neutral-400">{merchantToDelete.slug}.hostdomain.com</p>
+									<p class="text-xs text-gray-500 dark:text-neutral-400">{merchantToDelete.slug}.tukoo.web.id</p>
 								</div>
 							</div>
 						</div>
