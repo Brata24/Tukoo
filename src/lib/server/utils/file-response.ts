@@ -121,7 +121,3 @@ export async function serveStoredPath(path: string): Promise<Response> {
 /**
  * Serve a stored file through the remote bucket.
  */
-export async function serveStoredFile(directory: string, nestedKey?: string): Promise<Response> {
-    const composedPath = nestedKey ? `${directory}/${nestedKey}` : directory;
-    return serveStoredPath(composedPath);
-}
