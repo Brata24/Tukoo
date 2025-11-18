@@ -1,0 +1,1 @@
+ALTER TABLE `user_pos` ADD `last_login` timestamp;

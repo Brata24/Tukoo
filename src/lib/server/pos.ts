@@ -99,6 +99,9 @@ export async function createPosSession(token: string, userPosId: number): Promis
     // Session expires in 30 days - create as Date object like regular sessions
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
     
+    // Update last login timestamp
+    await db.update(userPos).set({ lastLogin: new Date() }).where(eq(userPos.id, userPosId));
+    
     await db.insert(sessionPos).values({
         id: token,
         userPosId,

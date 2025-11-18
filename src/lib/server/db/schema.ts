@@ -66,6 +66,7 @@ export const userPos = mysqlTable('user_pos', {
     merchantId: int('merchant_id').notNull().references(() => merchant.id),
     password: varchar('password', { length: 255 }).notNull(),
     role: varchar('role', { length: 50 }).notNull().default('staff'),
+    lastLogin: timestamp('last_login'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });

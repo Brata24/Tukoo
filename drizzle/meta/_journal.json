@@ -22,6 +22,13 @@
       "when": 1763405686086,
       "tag": "0002_lumpy_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763432699493,
+      "tag": "0003_fine_cable",
+      "breakpoints": true
     }
   ]
 }

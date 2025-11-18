@@ -42,12 +42,15 @@
 	};
 
 	// Check payment status (polling)
-	const checkPaymentStatus = async () => {
+	const checkPaymentStatus = async (forceCheck = false) => {
 		if (loading) return;
 
 		try {
 			loading = true;
-			const response = await fetch(`/api/subscription/status/${data.payment.paymentRequestId}`);
+			const url = forceCheck 
+				? `/api/subscription/status/${data.payment.paymentRequestId}?forceCheck=true`
+				: `/api/subscription/status/${data.payment.paymentRequestId}`;
+			const response = await fetch(url);
 			const result = await response.json();
 
 			if (result.success) {
@@ -244,7 +247,7 @@
 								Copy QRIS Code
 							</button>
 							<button
-								onclick={checkPaymentStatus}
+								onclick={() => checkPaymentStatus(true)}
 								disabled={loading}
 								class="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
 							>

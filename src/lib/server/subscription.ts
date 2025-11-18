@@ -78,3 +78,50 @@ export async function canCreateStore(userId: number): Promise<{ allowed: boolean
 		maxStores: subscription.plan.maxStores
 	};
 }
+
+/**
+ * Activate subscription after successful payment
+ */
+export async function activateSubscription(userId: number, planId: number) {
+	const plan = await db.query.subscriptionPlan.findFirst({
+		where: eq(subscriptionPlan.id, planId)
+	});
+
+	if (!plan) {
+		throw new Error('Plan not found');
+	}
+
+	const startDate = new Date();
+	const endDate = new Date();
+	endDate.setDate(endDate.getDate() + plan.duration);
+
+	// Create or update subscription
+	const existingSub = await db.query.userSubscription.findFirst({
+		where: eq(userSubscription.userId, userId)
+	});
+
+	if (existingSub) {
+		// Update existing subscription
+		await db
+			.update(userSubscription)
+			.set({
+				planId: plan.id,
+				status: 'active',
+				startDate,
+				endDate,
+				updatedAt: new Date()
+			})
+			.where(eq(userSubscription.userId, userId));
+	} else {
+		// Create new subscription
+		await db.insert(userSubscription).values({
+			userId,
+			planId: plan.id,
+			status: 'active',
+			startDate,
+			endDate
+		});
+	}
+
+	console.log(`[Subscription] Activated subscription for user ${userId}, plan ${plan.name}, expires at ${endDate}`);
+}

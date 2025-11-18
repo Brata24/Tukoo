@@ -31,7 +31,7 @@ export async function load(event) {
 			maxStores: subscription.plan.maxStores,
 			currentStores: storeCount,
 			status: subscription.status,
-			endDate: subscription.endDate?.toISOString() || null
+			endDate: ('endDate' in subscription && subscription.endDate) ? subscription.endDate.toISOString() : null
 		},
 		pendingPayment: pendingPayment ? {
 			paymentRequestId: pendingPayment.paymentRequestId,

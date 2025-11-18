@@ -2,7 +2,7 @@ curl -L 'https://app.pakasir.com/api/paymentsimulation' \
 -H 'Content-Type: application/json' \
 -d '{
     "project": "Tukoo",
-    "order_id": "SUB-1-1763428092998",
+    "order_id": "SUB-1-1763428079269",
     "amount": 99000,
     "api_key": "6a3D4toJ30YT56aCBotkZjvrtWAgdPA7"
 }'
