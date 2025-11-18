@@ -24,16 +24,18 @@
 	let deleting = $state(false);
 
 	// Compute delete behavior based on merchant status
-	$derived: {
-		if (merchantToDelete) {
-			merchantToDelete.isActiveStatus = Boolean(merchantToDelete.isActive);
-			merchantToDelete.deleteType = merchantToDelete.isActiveStatus ? 'deactivate' : 'permanent';
-			merchantToDelete.deleteAction = merchantToDelete.isActiveStatus ? 'Deactivate' : 'Delete Forever';
-			merchantToDelete.deleteDescription = merchantToDelete.isActiveStatus 
+	const deleteInfo = $derived(() => {
+		if (!merchantToDelete) return null;
+		const isActiveStatus = Boolean(merchantToDelete.isActive);
+		return {
+			isActiveStatus,
+			deleteType: isActiveStatus ? 'deactivate' : 'permanent',
+			deleteAction: isActiveStatus ? 'Deactivate' : 'Delete Forever',
+			deleteDescription: isActiveStatus 
 				? 'This will deactivate the merchant. You can reactivate it later.' 
-				: 'This will permanently delete the merchant and cannot be undone.';
-		}
-	}
+				: 'This will permanently delete the merchant and cannot be undone.'
+		};
+	});
 
 	// Function to format date
 	function formatDate(dateString: string) {
@@ -186,23 +188,45 @@
 			<p class="text-sm text-gray-600 dark:text-neutral-400">
 				Manage your merchants and their settings
 			</p>
+			<p class="text-xs text-gray-500 dark:text-neutral-500 mt-1">
+				{data.subscription.currentStores}/{data.subscription.maxStores === -1 ? '∞' : data.subscription.maxStores} stores used ({data.subscription.planName} plan)
+			</p>
 		</div>
-		<div class="mt-4 sm:mt-0">
-			<a
-				href="/dashboard/merchant/add"
-				class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-			>
-				<svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M5 12h14"/>
-					<path d="M12 5v14"/>
-				</svg>
-				Add New Merchant
-			</a>
+		<div class="mt-4 sm:mt-0 flex flex-col items-end gap-2">
+			{#if !data.subscription.canCreate}
+				<span class="text-xs text-red-600 dark:text-red-400">Store limit reached</span>
+			{/if}
+			{#if data.subscription.canCreate}
+				<a
+					href="/dashboard/merchant/add"
+					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+				>
+					<svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14"/>
+						<path d="M12 5v14"/>
+					</svg>
+					Add New Merchant
+				</a>
+			{:else}
+				<button
+					disabled
+					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-gray-400 text-white cursor-not-allowed opacity-50"
+				>
+					<svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14"/>
+						<path d="M12 5v14"/>
+					</svg>
+					Add New Merchant
+				</button>
+				<a href="/dashboard/subscription" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+					Upgrade to add more stores
+				</a>
+			{/if}
 		</div>
 	</div>
 
 	<!-- Stats Cards -->
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 		<div class="bg-white rounded-xl shadow-sm p-4 dark:bg-neutral-800 dark:border-neutral-700">
 			<div class="flex items-center">
 				<div class="flex-shrink-0">
@@ -220,6 +244,27 @@
 					<p class="text-lg font-semibold text-gray-900 dark:text-neutral-200">
 						{loading ? '...' : pagination.totalMerchants}
 					</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="bg-white rounded-xl shadow-sm p-4 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="flex items-center">
+				<div class="flex-shrink-0">
+					<div class="w-8 h-8 {data.subscription.canCreate ? 'bg-purple-100' : 'bg-red-100'} rounded-lg flex items-center justify-center {data.subscription.canCreate ? 'dark:bg-purple-800/30' : 'dark:bg-red-800/30'}">
+						<svg class="w-4 h-4 {data.subscription.canCreate ? 'text-purple-600 dark:text-purple-400' : 'text-red-600 dark:text-red-400'}" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+							<line x1="9" y1="9" x2="15" y2="15"/>
+							<line x1="15" y1="9" x2="9" y2="15"/>
+						</svg>
+					</div>
+				</div>
+				<div class="ml-3">
+					<p class="text-sm font-medium text-gray-500 dark:text-neutral-400">Store Limit</p>
+					<p class="text-lg font-semibold text-gray-900 dark:text-neutral-200">
+						{data.subscription.currentStores}/{data.subscription.maxStores === -1 ? '∞' : data.subscription.maxStores}
+					</p>
+					<p class="text-xs text-gray-500 dark:text-neutral-500">{data.subscription.planName}</p>
 				</div>
 			</div>
 		</div>
@@ -527,10 +572,10 @@
 				onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); } }}
 				aria-modal="true"
 			>
-				<div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
-					<h3 id="hs-delete-merchant-modal-label" class="font-bold text-gray-800 dark:text-white">
-						{merchantToDelete.deleteAction} Merchant
-					</h3>
+			<div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
+				<h3 id="hs-delete-merchant-modal-label" class="font-bold text-gray-800 dark:text-white">
+					{deleteInfo()?.deleteAction} Merchant
+				</h3>
 					<button type="button" onclick={cancelDelete} class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400 dark:focus:bg-neutral-600" aria-label="Close">
 						<span class="sr-only">Close</span>
 						<svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -541,24 +586,22 @@
 				</div>
 				
 				<div class="p-4 overflow-y-auto">
-					<!-- Warning Icon -->
-					<div class="flex justify-center mb-4">
-						<span class="inline-flex justify-center items-center size-[62px] rounded-full border-4 {merchantToDelete.deleteType === 'permanent' ? 'border-red-50 bg-red-100 text-red-500 dark:bg-red-600 dark:border-red-700 dark:text-red-100' : 'border-orange-50 bg-orange-100 text-orange-500 dark:bg-orange-600 dark:border-orange-700 dark:text-orange-100'}">
+				<!-- Warning Icon -->
+				<div class="flex justify-center mb-4">
+					<span class="inline-flex justify-center items-center size-[62px] rounded-full border-4 {deleteInfo()?.deleteType === 'permanent' ? 'border-red-50 bg-red-100 text-red-500 dark:bg-red-600 dark:border-red-700 dark:text-red-100' : 'border-orange-50 bg-orange-100 text-orange-500 dark:bg-orange-600 dark:border-orange-700 dark:text-orange-100'}">
 							<svg class="flex-shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
 								<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
 							</svg>
 						</span>
 					</div>
 
-					<div class="text-center">
-						<p class="text-gray-800 dark:text-neutral-400">
-							Are you sure you want to {merchantToDelete.deleteType === 'permanent' ? 'permanently delete' : 'deactivate'} <strong>"{merchantToDelete.name}"</strong>?
-						</p>
-						<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
-							{merchantToDelete.deleteDescription}
-						</p>
-
-						<!-- Merchant Preview -->
+				<div class="text-center">
+					<p class="text-gray-800 dark:text-neutral-400">
+						Are you sure you want to {deleteInfo()?.deleteType === 'permanent' ? 'permanently delete' : 'deactivate'} <strong>"{merchantToDelete.name}"</strong>?
+					</p>
+					<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
+						{deleteInfo()?.deleteDescription}
+					</p>						<!-- Merchant Preview -->
 						<div class="mt-4 flex justify-center">
 							<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg dark:bg-neutral-700">
 								{#if merchantToDelete.logo}
@@ -581,12 +624,12 @@
 					<button type="button" onclick={cancelDelete} class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700">
 						Cancel
 					</button>
-					<button type="button" onclick={deleteMerchant} disabled={deleting} class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent {merchantToDelete.deleteType === 'permanent' ? 'bg-red-600 hover:bg-red-700 focus:outline-hidden focus:bg-red-700' : 'bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:bg-orange-700'} text-white disabled:opacity-50 disabled:pointer-events-none">
+					<button type="button" onclick={deleteMerchant} disabled={deleting} class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent {deleteInfo()?.deleteType === 'permanent' ? 'bg-red-600 hover:bg-red-700 focus:outline-hidden focus:bg-red-700' : 'bg-orange-600 hover:bg-orange-700 focus:outline-hidden focus:bg-orange-700'} text-white disabled:opacity-50 disabled:pointer-events-none">
 						{#if deleting}
 							<div class="animate-spin inline-block size-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading">
 								<span class="sr-only">Loading...</span>
 							</div>
-							{merchantToDelete.deleteType === 'permanent' ? 'Deleting...' : 'Deactivating...'}
+							{deleteInfo()?.deleteType === 'permanent' ? 'Deleting...' : 'Deactivating...'}
 						{:else}
 							Delete
 						{/if}

@@ -1,6 +1,7 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { saveUploadedFile } from '$lib/server/utils/file-storage.js';
 import { createMerchant, isSlugAvailable } from '$lib/server/merchant.js';
+import { canCreateStore, getUserActiveSubscription } from '$lib/server/subscription.js';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function load(event) {
@@ -11,7 +12,18 @@ export async function load(event) {
         return redirect(302, "/auth/verify-email");
     }
 
-    return {};
+    // Get user's subscription info
+    const subscription = await getUserActiveSubscription(event.locals.user.id);
+    const storeLimit = await canCreateStore(event.locals.user.id);
+
+    return {
+        subscription: {
+            planName: subscription.plan.name,
+            currentStores: storeLimit.currentCount,
+            maxStores: storeLimit.maxStores,
+            canCreate: storeLimit.allowed
+        }
+    };
 }
 
 export const actions = {
@@ -27,6 +39,17 @@ async function addMerchant(event: RequestEvent) {
     if (!event.locals.user.emailVerified) {
         return fail(403, {
             message: "Email not verified"
+        });
+    }
+
+    // Check store creation limit
+    const storeLimit = await canCreateStore(event.locals.user.id);
+    if (!storeLimit.allowed) {
+        return fail(403, {
+            message: storeLimit.reason,
+            currentCount: storeLimit.currentCount,
+            maxStores: storeLimit.maxStores,
+            needsUpgrade: true
         });
     }
 

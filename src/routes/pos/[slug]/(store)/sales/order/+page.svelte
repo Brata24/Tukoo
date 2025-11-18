@@ -101,6 +101,30 @@
 		}
 	}
 
+	async function manualCheckQris() {
+		if (!qrisPaymentRequestId) return;
+		try {
+			const r = await fetch(`../../api/qris/${qrisPaymentRequestId}?forceCheck=true`);
+			const j = await r.json();
+			if (j?.data) {
+				qrisStatus = j.data.status;
+				if (qrisStatus === 'SUCCEEDED' || qrisStatus === 'completed') {
+					toast.success('Payment successful');
+					closeQrisModal();
+					if (selectedOrder) {
+						await updateOrderStatus(selectedOrder.order.id, 'paymentStatus', 'paid');
+						await updateOrderStatus(selectedOrder.order.id, 'status', 'paid');
+					}
+				} else {
+					toast.info(`Payment status: ${qrisStatus}`);
+				}
+			}
+		} catch (e) {
+			console.error('Manual check error:', e);
+			toast.error('Failed to check payment status');
+		}
+	}
+
 	function startQrisCountdown() {
 		if (!qrisExpiresAt) return;
 		
@@ -132,29 +156,6 @@
 			const seconds = Math.floor((diff % 60000) / 1000);
 			qrisTimeRemaining = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 		}, 1000);
-	}
-
-	async function manualCheckQris() {
-		if (!qrisPaymentRequestId) return;
-		try {
-			const res = await fetch(`../../api/qris/${qrisPaymentRequestId}`);
-			const json = await res.json();
-			if (json && json.data) {
-				qrisStatus = json.data.status;
-				if (qrisStatus === 'SUCCEEDED') {
-					toast.success('Payment successful');
-					closeQrisModal();
-					
-					// Update order status to paid
-					if (selectedOrder) {
-						await updateOrderStatus(selectedOrder.order.id, 'paymentStatus', 'paid');
-						await updateOrderStatus(selectedOrder.order.id, 'status', 'paid');
-					}
-				}
-			}
-		} catch (e) {
-			console.error('manualCheckQris', e);
-		}
 	}
 
 	async function showQrisPayment(order: any) {

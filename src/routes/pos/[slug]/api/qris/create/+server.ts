@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { payment, order } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import { XENDIT_PRIVATE_KEY } from '$env/static/private';
+import { PAKASIR_API_KEY, PAKASIR_PROJECT } from '$env/static/private';
 
 export const POST: RequestHandler = async ({ request, params }) => {
   try {
@@ -29,77 +29,55 @@ export const POST: RequestHandler = async ({ request, params }) => {
     const finalOrderId = orderRecord.id;
     const finalOrderNumber = orderRecord.orderNumber;
 
-    if (!XENDIT_PRIVATE_KEY) {
-      console.error('XENDIT_PRIVATE_KEY not configured');
-      return new Response(JSON.stringify({ error: 'Xendit key not configured' }), { status: 500 });
+    if (!PAKASIR_API_KEY || !PAKASIR_PROJECT) {
+      console.error('PAKASIR_API_KEY or PAKASIR_PROJECT not configured');
+      return new Response(JSON.stringify({ error: 'Pak Kasir not configured' }), { status: 500 });
     }
 
-    const payload = {
-      reference_id: finalOrderNumber,
-      type: 'PAY',
-      country: 'ID',
-      currency: 'IDR',
-      request_amount: amount, // Use amount directly
-      channel_code: 'QRIS'
-    };
-
-    const res = await fetch('https://api.xendit.co/v3/payment_requests', {
+    // Create payment with Pak Kasir using POST method
+    const res = await fetch('https://app.pakasir.com/api/transactioncreate/qris', {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${Buffer.from(XENDIT_PRIVATE_KEY + ':').toString('base64')}`,
-        'Content-Type': 'application/json',
-        'api-version': '2024-11-11'
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        project: PAKASIR_PROJECT,
+        order_id: finalOrderNumber,
+        amount: amount,
+        api_key: PAKASIR_API_KEY
+      })
     });
 
     const data = await res.json();
 
-    if (!res.ok) {
-      console.error('Xendit API error:', data);
-      return new Response(JSON.stringify({ error: 'Xendit API error', details: data }), { status: 400 });
+    if (!res.ok || !data.payment) {
+      console.error('Pak Kasir API error:', data);
+      return new Response(JSON.stringify({ error: 'Pak Kasir API error', details: data }), { status: 400 });
     }
 
-    // Extract QR string from actions array
-    let qrString = null;
-    if (data.actions && Array.isArray(data.actions)) {
-      const qrAction = data.actions.find((a: any) => 
-        a.descriptor === 'QR_STRING' && a.value
-      );
-      qrString = qrAction?.value || null;
-      console.log('QR Action found:', qrAction);
-      console.log('QR String extracted:', qrString);
-    }
-    
-    // Fallback to direct qrString property if exists
-    if (!qrString && data.qrString) {
-      qrString = data.qrString;
-      console.log('Using fallback qrString:', qrString);
-    }
+    // Extract payment data from Pak Kasir response
+    const paymentData = data.payment;
+    const paymentNumber = paymentData.payment_number; // This is the QRIS string
+    const expiresAt = paymentData.expired_at ? new Date(paymentData.expired_at) : null;
 
-    if (!qrString) {
-      console.error('No QR string found in response. Actions:', JSON.stringify(data.actions));
-    }
-
-    // Store payment with new Xendit v3 fields
+    // Store payment with Pak Kasir fields
     await db.insert(payment).values({
       orderId: finalOrderId,
       paymentMethod: 'qris',
-      amount: amount,
-      status: data.status || 'PENDING',
-      paymentRequestId: data.payment_request_id,
-      referenceId: data.reference_id,
-      channelCode: data.channel_code,
-      qrString: qrString,
-      expiresAt: data.channel_properties?.expires_at 
-        ? new Date(data.channel_properties.expires_at) 
-        : (data.expires_at ? new Date(data.expires_at) : null),
+      amount: paymentData.received || amount,
+      status: 'pending', // Pak Kasir uses 'pending' or 'completed'
+      paymentRequestId: finalOrderNumber, // Use order_id as payment identifier
+      referenceId: finalOrderNumber,
+      channelCode: paymentData.payment_method || 'QRIS',
+      paymentNumber: paymentNumber, // Store payment_number field (QR string)
+      qrString: paymentNumber, // Also keep qrString for backward compatibility
+      expiresAt: expiresAt,
       rawResponse: JSON.stringify(data)
     });
 
-    // Get the created payment record with uuid using unique paymentRequestId
+    // Get the created payment record with uuid
     const createdPayment = await db.query.payment.findFirst({
-      where: eq(payment.paymentRequestId, data.payment_request_id),
+      where: eq(payment.paymentRequestId, finalOrderNumber),
       orderBy: (payment, { desc }) => [desc(payment.id)]
     });
 
@@ -117,16 +95,17 @@ export const POST: RequestHandler = async ({ request, params }) => {
           payment: {
             id: createdPayment.id,
             uuid: createdPayment.uuid,
-            paymentRequestId: data.payment_request_id,
-            status: data.status,
-            expiresAt: data.channel_properties?.expires_at || data.expires_at || null,
-            qrString: qrString
+            paymentRequestId: finalOrderNumber,
+            status: 'pending',
+            expiresAt: expiresAt?.toISOString() || null,
+            paymentNumber: paymentNumber, // QR string for rendering
+            qrString: paymentNumber // Keep for backward compatibility
           },
-          payment_request_id: data.payment_request_id,
-          status: data.status,
-          expires_at: data.channel_properties?.expires_at || data.expires_at || null,
-          actions: data.actions,
-          qrString: qrString // Include QR string in response for client
+          payment_request_id: finalOrderNumber,
+          status: 'pending',
+          expires_at: expiresAt?.toISOString() || null,
+          paymentNumber: paymentNumber, // QR string for rendering
+          qrString: paymentNumber // Include QR string in response for client
         }
       }),
       { status: 200 }

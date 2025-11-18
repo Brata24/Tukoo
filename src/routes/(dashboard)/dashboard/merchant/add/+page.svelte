@@ -4,7 +4,7 @@
 	import { toast } from "$lib/stores/toast.js";
 	import { redirect } from "@sveltejs/kit";
 
-	let { form } = $props();
+	let { form, data } = $props();
 
 	// Function to preview selected logo
 	function previewLogo(event: Event) {
@@ -95,6 +95,46 @@
 		<p class="text-sm text-gray-600 dark:text-neutral-400">Fill in the details below to add a new merchant.</p>
 	</div>
 
+	<!-- Store Limit Warning -->
+	{#if !data.subscription.canCreate}
+		<div class="mb-6 bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4 dark:bg-red-800/10 dark:border-red-900 dark:text-red-500" role="alert">
+			<div class="flex">
+				<div class="flex-shrink-0">
+					<svg class="flex-shrink-0 h-4 w-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<line x1="12" y1="8" x2="12" y2="12"></line>
+						<line x1="12" y1="16" x2="12.01" y2="16"></line>
+					</svg>
+				</div>
+				<div class="ms-3">
+					<h3 class="text-sm font-semibold">Store Creation Limit Reached</h3>
+					<div class="mt-2 text-sm text-red-700 dark:text-red-400">
+						You have reached your store limit ({data.subscription.currentStores}/{data.subscription.maxStores} stores on {data.subscription.planName} plan).
+						<a href="/dashboard/subscription" class="font-semibold underline hover:decoration-2">Upgrade your subscription</a> to create more stores.
+					</div>
+				</div>
+			</div>
+		</div>
+	{:else}
+		<div class="mb-6 bg-blue-50 border border-blue-200 text-sm text-blue-800 rounded-lg p-4 dark:bg-blue-800/10 dark:border-blue-900 dark:text-blue-500" role="alert">
+			<div class="flex">
+				<div class="flex-shrink-0">
+					<svg class="flex-shrink-0 h-4 w-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<path d="M12 16v-4"></path>
+						<path d="M12 8h.01"></path>
+					</svg>
+				</div>
+			<div class="ms-3">
+				<span class="text-sm">
+					You can create {data.subscription?.maxStores === -1 ? 'unlimited' : `${(data.subscription?.maxStores || 0) - (data.subscription?.currentStores || 0)} more`} store{data.subscription?.maxStores !== -1 && (data.subscription?.maxStores || 0) - (data.subscription?.currentStores || 0) !== 1 ? 's' : ''} 
+					({data.subscription?.currentStores || 0}/{data.subscription?.maxStores === -1 ? '∞' : data.subscription?.maxStores} on {data.subscription?.planName} plan).
+				</span>
+			</div>
+			</div>
+		</div>
+	{/if}
+
 	<div class="bg-white w-full h-fit rounded-xl shadow-xs p-6 dark:bg-neutral-800">
 		<form
 			method="POST"
@@ -115,6 +155,7 @@
 			}}
 			class="space-y-6"
 		>
+			<fieldset disabled={!data.subscription.canCreate}>
 			<!-- Nama Merchant -->
 			<div>
 				<label for="merchant-name" class="block text-sm font-medium mb-2 dark:text-white">
@@ -126,6 +167,7 @@
 					name="merchantName"
 					required
 					maxlength="100"
+					disabled={!data.subscription.canCreate}
 					onchange={updateSlugFromName}
 					oninput={updateSlugFromName}
 					class="py-3 px-4 block border w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
@@ -379,6 +421,7 @@
 				</button>
 				<button
 					type="submit"
+					disabled={!data.subscription.canCreate}
 					class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
 				>
 					<svg
@@ -398,6 +441,7 @@
 					Add Merchant
 				</button>
 			</div>
+			</fieldset>
 		</form>
 	</div>
 </div>

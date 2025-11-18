@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { redirect } from '@sveltejs/kit';
 
 	let { data } = $props();
 
@@ -63,11 +64,10 @@
 				timeRemaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
 			}
 
-			// Check if payment is already completed
-			if (payment.status === 'SUCCEEDED') {
-				// Redirect to tracking
+			
+			if (payment.status === 'completed') {
 				goto(`/order/${qrToken}/track/${order.uuid}`);
-			} else if (['CANCELED', 'EXPIRED', 'FAILED'].includes(payment.status)) {
+			} else if (['cancelled', 'expired', 'failed'].includes(payment.status.toLowerCase())) {
 				error = `Payment ${payment.status.toLowerCase()}`;
 			}
 
@@ -80,12 +80,13 @@
 	};
 
 	// Check payment status (polling)
-	const checkPaymentStatus = async () => {
+	const checkPaymentStatus = async (forceCheck = false) => {
 		if (checkingPayment) return;
 
 		try {
 			checkingPayment = true;
-			const response = await fetch(`/api/qris/${paymentId}`);
+			const url = forceCheck ? `/api/qris/${paymentId}?forceCheck=true` : `/api/qris/${paymentId}`;
+			const response = await fetch(url);
 			const result = await response.json();
 
 			if (result.success) {
@@ -99,11 +100,11 @@
 				};
 
 				// If payment succeeded, redirect to tracking
-				if (payment.status === 'SUCCEEDED') {
+				if (payment.status === 'completed') {
 					clearInterval(intervalId);
 					clearInterval(countdownId);
 					goto(`/order/${qrToken}/track/${order.uuid}`);
-				} else if (['CANCELED', 'EXPIRED', 'FAILED'].includes(payment.status)) {
+				} else if (['cancelled', 'expired', 'failed'].includes(payment.status.toLowerCase())) {
 					clearInterval(intervalId);
 					clearInterval(countdownId);
 					error = `Payment ${payment.status.toLowerCase()}`;
@@ -262,6 +263,16 @@
 							<span>Checking payment status...</span>
 						</div>
 					{/if}
+
+					<!-- Check Payment Button -->
+					<button
+						onclick={() => checkPaymentStatus(true)}
+						disabled={checkingPayment}
+						class="w-full py-3 px-4 rounded-xl font-semibold transition hover:opacity-90 mb-3 disabled:opacity-50"
+						style="background-color: {merchant.primaryColor}; color: {merchant.primaryTextColor || '#FFFFFF'}"
+					>
+						{checkingPayment ? 'Checking...' : 'Check Payment Status'}
+					</button>
 
 					<!-- Cancel Button -->
 					<button

@@ -167,6 +167,7 @@ export const payment = mysqlTable('payment', {
     paymentRequestId: varchar('payment_request_id', { length: 255 }), // Xendit payment_request_id (v3 API)
     referenceId: varchar('reference_id', { length: 255 }), // Our order number (for Xendit reference_id)
     channelCode: varchar('channel_code', { length: 50 }).default('QRIS'), // Always QRIS (we only support QRIS)
+    paymentNumber: varchar('payment_number', { length: 255 }), // Pak Kasir payment_number
     qrString: text('qr_string'), // QR code string from Xendit actions[0].value
     expiresAt: timestamp('expires_at'), // Payment expiration time (from Xendit)
     rawResponse: text('raw_response'), // Full Xendit API response JSON
@@ -190,6 +191,84 @@ export const cartItem = mysqlTable('cart_item', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });
+
+// Subscription Plans
+export const subscriptionPlan = mysqlTable('subscription_plan', {
+    id: int('id').primaryKey().notNull().autoincrement(),
+    name: varchar('name', { length: 100 }).notNull(), // e.g., "Free", "Basic", "Pro"
+    slug: varchar('slug', { length: 50 }).notNull().unique(), // e.g., "free", "basic", "pro"
+    price: int('price').notNull(), // in cents, 0 for free plan
+    duration: int('duration').notNull(), // in days, e.g., 30 for monthly
+    maxStores: int('max_stores').notNull().default(1), // Maximum stores allowed
+    description: text('description'), // Plan description/features
+    isActive: int('is_active').notNull().default(1), // 0 = inactive, 1 = active
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+});
+
+// User Subscriptions
+export const userSubscription = mysqlTable('user_subscription', {
+    id: int('id').primaryKey().notNull().autoincrement(),
+    uuid: varchar('uuid', { length: 36 }).notNull().unique().$defaultFn(() => uuidv4()),
+    userId: int('user_id').notNull().references(() => user.id),
+    planId: int('plan_id').notNull().references(() => subscriptionPlan.id),
+    status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending', 'active', 'expired', 'cancelled'
+    startDate: timestamp('start_date'),
+    endDate: timestamp('end_date'),
+    paymentId: int('payment_id').references(() => subscriptionPayment.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+});
+
+// Subscription Payments
+export const subscriptionPayment = mysqlTable('subscription_payment', {
+    id: int('id').primaryKey().notNull().autoincrement(),
+    uuid: varchar('uuid', { length: 36 }).notNull().unique().$defaultFn(() => uuidv4()),
+    userId: int('user_id').notNull().references(() => user.id),
+    planId: int('plan_id').notNull().references(() => subscriptionPlan.id),
+    amount: int('amount').notNull(), // in cents
+    status: varchar('status', { length: 20 }).notNull().default('pending'), // 'pending', 'completed', 'failed', 'expired', 'cancelled'
+    paymentMethod: varchar('payment_method', { length: 20 }).notNull().default('qris'), // 'qris'
+    paymentRequestId: varchar('payment_request_id', { length: 255 }).notNull().unique(), // Pakasir order_id
+    paymentNumber: varchar('payment_number', { length: 255 }), // Pakasir payment_number (QR string)
+    qrString: text('qr_string'), // QR code string
+    expiresAt: timestamp('expires_at'),
+    paidAt: timestamp('paid_at'),
+    rawResponse: text('raw_response'), // Full Pakasir API response JSON
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+});
+
+// Add relations for subscription queries
+import { relations } from 'drizzle-orm';
+
+export const userSubscriptionRelations = relations(userSubscription, ({ one }) => ({
+	user: one(user, {
+		fields: [userSubscription.userId],
+		references: [user.id]
+	}),
+	plan: one(subscriptionPlan, {
+		fields: [userSubscription.planId],
+		references: [subscriptionPlan.id]
+	}),
+	payment: one(subscriptionPayment, {
+		fields: [userSubscription.paymentId],
+		references: [subscriptionPayment.id]
+	})
+}));
+
+export const subscriptionPaymentRelations = relations(subscriptionPayment, ({ one }) => ({
+	user: one(user, {
+		fields: [subscriptionPayment.userId],
+		references: [user.id]
+	}),
+	plan: one(subscriptionPlan, {
+		fields: [subscriptionPayment.planId],
+		references: [subscriptionPlan.id]
+	})
+}));
+
+
 
 
 

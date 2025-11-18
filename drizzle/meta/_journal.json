@@ -8,6 +8,20 @@
       "when": 1762965544728,
       "tag": "0000_aberrant_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1763401724317,
+      "tag": "0001_serious_omega_sentinel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763405686086,
+      "tag": "0002_lumpy_gravity",
+      "breakpoints": true
     }
   ]
 }
