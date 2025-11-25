@@ -54,6 +54,7 @@ export const merchant = mysqlTable('merchant', {
     slogan: varchar('slogan', { length: 150 }).default('').notNull(),
     userId: int('user_id').notNull().references(() => user.id),
     isActive: int('is_active').notNull().default(1),
+    salesDashboardLocked: int('sales_dashboard_locked').notNull().default(0),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });

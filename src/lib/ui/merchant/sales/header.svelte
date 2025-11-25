@@ -1,10 +1,10 @@
 <script lang="ts">
 	interface Props {
 		nama: string;
-	
+		handleLock?: () => void;
 	}
 
-	let dataPress: Props = $props();
+	let { nama, handleLock }: Props = $props();
 	
 	
 	
@@ -68,8 +68,20 @@
 		</div>
 
 		<div class="w-full flex items-center justify-end ms-auto gap-x-1 md:gap-x-3">
+			{#if handleLock}
+				<button
+					onclick={handleLock}
+					class="inline-flex items-center gap-x-2 px-3 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+					</svg>
+					<span class="hidden sm:inline">Lock</span>
+				</button>
+			{/if}
+			
 			<div class="flex flex-row items-center justify-between gap-1 space-x-2">
-				<p>Hallo, {dataPress.nama}</p>
+				<p>Hallo, {nama}</p>
 
 				<img
 					class="inline-block object-cover object-center shrink-0 size-8 rounded-full"

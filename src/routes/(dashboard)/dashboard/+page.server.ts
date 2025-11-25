@@ -74,9 +74,9 @@ export async function load(event) {
 		);
 
 	const totalOrders = ordersResult[0]?.totalOrders || 0;
-	const totalRevenue = (parseFloat(ordersResult[0]?.totalRevenue as any) || 0) / 100; // Convert from cents
+	const totalRevenue = (parseFloat(ordersResult[0]?.totalRevenue as any) || 0) 
 	const recentOrders = recentOrdersResult[0]?.totalOrders || 0;
-	const recentRevenue = (parseFloat(recentOrdersResult[0]?.totalRevenue as any) || 0) / 100; // Convert from cents
+	const recentRevenue = (parseFloat(recentOrdersResult[0]?.totalRevenue as any) || 0) 
 
 	// Check for pending subscription payments
 	const pendingPayment = await db.query.subscriptionPayment.findFirst({

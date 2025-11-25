@@ -157,16 +157,14 @@
 							</a>
 						</li>
 
-						<li class="hs-accordion" id="users-accordion">
-							<button
-								type="button"
-								class="hs-accordion-toggle group w-full text-start flex items-center gap-3 py-2.5 px-3 text-sm font-medium rounded-xl transition-all duration-200 {isActive(
+						<li>
+							<a
+								href="/dashboard/merchant/{userData.merchant_uuid}/user"
+								class="group w-full text-start flex items-center gap-3 py-2.5 px-3 text-sm font-medium rounded-xl transition-all duration-200 {isActive(
 									'/user'
 								)
 									? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/30'
 									: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-neutral-300 dark:hover:bg-neutral-700/50 dark:hover:text-white'}"
-								aria-expanded="true"
-								aria-controls="users-accordion-collapse-1"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -181,58 +179,8 @@
 									class="size-5 transition-transform group-hover:scale-110"
 									><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg
 								>
-
-								<span class="flex-1">Users</span>
-
-								<svg
-									class="hs-accordion-active:rotate-180 ms-auto size-4 transition-transform duration-300"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg
-								>
-							</button>
-
-							<div
-								id="users-accordion-collapse-1"
-								class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
-								role="region"
-								aria-labelledby="users-accordion"
-							>
-								<ul class="hs-accordion-group pt-2 ps-8 space-y-1" data-hs-accordion-always-open>
-									<li>
-										<a
-											class="group flex items-center gap-2 py-2 px-3 text-sm rounded-lg transition-all duration-200 {isActive(
-												'/user/add'
-											)
-												? 'text-blue-600 font-medium dark:text-blue-400'
-												: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50'}"
-											href="/dashboard/merchant/{userData.merchant_uuid}/user/add"
-										>
-											<span class="size-1.5 rounded-full bg-current"></span>
-											<span>Add User</span>
-										</a>
-									</li>
-									<li>
-										<a
-											class="group flex items-center gap-2 py-2 px-3 text-sm rounded-lg transition-all duration-200 {isActive(
-												'/user'
-											) && !isActive('/user/add')
-												? 'text-blue-600 font-medium dark:text-blue-400'
-												: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800/50'}"
-											href="/dashboard/merchant/{userData.merchant_uuid}/user"
-										>
-											<span class="size-1.5 rounded-full bg-current"></span>
-											<span>List Users</span>
-										</a>
-									</li>
-								</ul>
-							</div>
+								<span>Users</span>
+							</a>
 						</li>
 						<li>
 							<a

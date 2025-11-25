@@ -6,7 +6,7 @@
 			style: 'currency',
 			currency: 'IDR',
 			minimumFractionDigits: 0
-		}).format(amount / 100);
+		}).format(amount);
 	}
 
 	function formatDate(date: Date | string) {
