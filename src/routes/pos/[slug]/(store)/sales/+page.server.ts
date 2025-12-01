@@ -196,7 +196,9 @@ export const load: PageServerLoad = async ({ locals, params, cookies }) => {
 			slug: merchantData.slug,
 			logo: merchantData.logo,
 			primaryColor: merchantData.primaryColor,
-			secondaryColor: merchantData.secondaryColor
+			secondaryColor: merchantData.secondaryColor,
+			primaryTextColor: merchantData.primaryTextColor,
+			secondaryTextColor: merchantData.secondaryTextColor
 		},
 		stats: {
 			totalRevenue,

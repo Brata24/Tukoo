@@ -6,7 +6,7 @@
 		"node": "^22.11"
 	},
 	"scripts": {
-		"start": "node build",
+		"start": "node server.js",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
@@ -70,6 +70,8 @@
 		"pdfmake": "^0.2.18",
 		"preline": "^3.2.3",
 		"qrcode": "^1.5.4",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
 		"sortablejs": "^1.15.6",
 		"tailwindcss": "^4.1.13",
 		"toastify-js": "^1.12.0",

@@ -166,6 +166,94 @@
 								Order
 							</a>
 						</li>
+
+						<li class="hs-accordion" id="settings-accordion">
+							<button
+								type="button"
+								class="sidebar-link hs-accordion-toggle {isActive('/sales/settings')
+									? 'active'
+									: ''} w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg hs-accordion-active:text-blue-600 dark:hs-accordion-active:text-blue-500"
+								aria-expanded="false"
+								aria-controls="settings-accordion-child"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="size-4"
+								>
+									<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+									<circle cx="12" cy="12" r="3"/>
+								</svg>
+								Settings
+								<svg
+									class="size-4 ms-auto hs-accordion-active:block hidden"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg
+								>
+								<svg
+									class="size-4 ms-auto hs-accordion-active:hidden block"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg
+								>
+							</button>
+
+							<div
+								id="settings-accordion-child"
+								class="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+								role="region"
+								aria-labelledby="settings-accordion"
+							>
+								<ul class="ps-8 pt-1 space-y-1">
+									<li>
+										<a
+											class="sidebar-link {isActive('/sales/settings/banners')
+												? 'active'
+												: ''} flex items-center gap-x-3.5 py-2 px-2.5 text-sm rounded-lg"
+											href="/sales/settings/banners"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												class="size-4"
+											>
+												<rect width="18" height="18" x="3" y="3" rx="2"/>
+												<circle cx="9" cy="9" r="2"/>
+												<path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+											</svg>
+											Promo Banners
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
 					</ul>
 				</div>
 			</nav>

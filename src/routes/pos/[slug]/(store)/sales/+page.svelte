@@ -54,16 +54,16 @@
 	<title>Sales Dashboard - {data.merchant.name}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-neutral-900">
+<div class="min-h-screen" style="background-color: {data.merchant.primaryColor}10;">
 	<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
 		<!-- Header -->
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 			<div>
-				<h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-neutral-200">
+				<h1 class="text-2xl sm:text-3xl font-bold" style="color: {data.merchant.primaryColor};">
 					Sales Analytics
 				</h1>
-				<p class="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+				<p class="mt-1 text-sm text-gray-600">
 					Track your sales performance and insights
 				</p>
 			</div>
@@ -72,9 +72,9 @@
 		<!-- Stats Grid -->
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 			<!-- Total Revenue -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow p-5" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md">
+					<div class="flex items-center justify-center w-12 h-12 rounded-lg shadow-md" style="background: linear-gradient(to bottom right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});">
 						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 						</svg>
@@ -92,9 +92,9 @@
 			</div>
 
 			<!-- Total Orders -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow p-5" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
+					<div class="flex items-center justify-center w-12 h-12 rounded-lg shadow-md" style="background: linear-gradient(to bottom right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});">
 						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
 						</svg>
@@ -112,9 +112,9 @@
 			</div>
 
 			<!-- Average Order Value -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow p-5" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md">
+					<div class="flex items-center justify-center w-12 h-12 rounded-lg shadow-md" style="background: linear-gradient(to bottom right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});">
 						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
 						</svg>
@@ -132,9 +132,9 @@
 			</div>
 
 			<!-- Today's Sales -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-5 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow p-5" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center justify-between mb-3">
-					<div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-md">
+					<div class="flex items-center justify-center w-12 h-12 rounded-lg shadow-md" style="background: linear-gradient(to bottom right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});">
 						<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
 						</svg>
@@ -155,10 +155,10 @@
 		<!-- Period Stats -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 			<!-- 7 Days Stats -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm p-6" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center gap-3 mb-4">
-					<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg dark:bg-blue-900/30">
-						<svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<div class="flex items-center justify-center w-10 h-10 rounded-lg" style="background-color: {data.merchant.primaryColor}20;">
+						<svg class="w-5 h-5" style="color: {data.merchant.primaryColor};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
 						</svg>
 					</div>
@@ -181,11 +181,11 @@
 			</div>
 
 			<!-- 30 Days Stats -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm p-6" style="border-color: {data.merchant.primaryColor}20;">
 				<div class="flex items-center gap-3 mb-4">
-					<div class="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-lg dark:bg-purple-900/30">
-						<svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+					<div class="flex items-center justify-center w-10 h-10 rounded-lg" style="background-color: {data.merchant.primaryColor}20;">
+						<svg class="w-5 h-5" style="color: {data.merchant.primaryColor};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
 						</svg>
 					</div>
 					<h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200">Last 30 Days</h3>
@@ -209,7 +209,7 @@
 
 		<!-- Daily Sales Chart (Last 7 Days) -->
 		{#if data.dailySales.length > 0}
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 dark:bg-neutral-800 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm p-6" style="border-color: {data.merchant.primaryColor}20;">
 				<h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200 mb-4">Daily Sales Trend</h3>
 				<div class="space-y-3">
 					{#each data.dailySales as day}
@@ -229,10 +229,10 @@
 									</span>
 								</div>
 							</div>
-							<div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-neutral-700">
-								<div
-									class="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all"
-									style="width: {percentage}%"
+						<div class="w-full rounded-full h-2.5" style="background-color: {data.merchant.primaryColor}10;">
+							<div
+								class="h-2.5 rounded-full transition-all"
+								style="width: {percentage}%; background: linear-gradient(to right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});"
 								></div>
 							</div>
 						</div>
@@ -244,16 +244,16 @@
 		<!-- Top Products & Sales by Category -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 			<!-- Top Products -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-800 dark:border-neutral-700">
-				<div class="p-6 border-b border-gray-200 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm" style="border-color: {data.merchant.primaryColor}20;">
+				<div class="p-6 border-b" style="border-color: {data.merchant.primaryColor}20;">
 					<h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200">Top Selling Products</h3>
 				</div>
 				<div class="p-6">
 					{#if data.topProducts.length > 0}
 						<div class="space-y-4">
-							{#each data.topProducts as product, index}
-								<div class="flex items-center gap-4 p-4 rounded-lg border border-gray-200 dark:border-neutral-700">
-									<div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
+						{#each data.topProducts as product, index}
+							<div class="flex items-center gap-4 p-4 rounded-lg border" style="border-color: {data.merchant.primaryColor}20;">
+								<div class="flex items-center justify-center w-8 h-8 rounded-full text-white font-bold text-sm" style="background: linear-gradient(to bottom right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});">
 										{index + 1}
 									</div>
 									{#if product.productPhoto}
@@ -290,8 +290,8 @@
 			</div>
 
 			<!-- Sales by Category -->
-			<div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-800 dark:border-neutral-700">
-				<div class="p-6 border-b border-gray-200 dark:border-neutral-700">
+			<div class="bg-white border rounded-xl shadow-sm" style="border-color: {data.merchant.primaryColor}20;">
+				<div class="p-6 border-b" style="border-color: {data.merchant.primaryColor}20;">
 					<h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200">Sales by Category</h3>
 				</div>
 				<div class="p-6">
@@ -314,10 +314,10 @@
 											{formatCurrency(cat.totalRevenue)}
 										</p>
 									</div>
-									<div class="w-full bg-gray-200 rounded-full h-2 dark:bg-neutral-700">
+									<div class="w-full rounded-full h-2" style="background-color: {data.merchant.primaryColor}10;">
 										<div
-											class="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all"
-											style="width: {percentage}%"
+											class="h-2 rounded-full transition-all"
+											style="width: {percentage}%; background: linear-gradient(to right, {data.merchant.primaryColor}, {data.merchant.secondaryColor});"
 										></div>
 									</div>
 								</div>
@@ -333,8 +333,8 @@
 		</div>
 
 		<!-- Recent Orders -->
-		<div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-800 dark:border-neutral-700">
-			<div class="p-6 border-b border-gray-200 dark:border-neutral-700">
+		<div class="bg-white border rounded-xl shadow-sm" style="border-color: {data.merchant.primaryColor}20;">
+			<div class="p-6 border-b" style="border-color: {data.merchant.primaryColor}20;">
 				<h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200">Recent Orders</h3>
 			</div>
 			<div class="overflow-x-auto">

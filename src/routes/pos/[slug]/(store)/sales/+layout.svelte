@@ -59,7 +59,12 @@
 		onUnlock={handleUnlock}
 	/>
 {:else}
-	<Header nama={data?.user?.name ?? ''} {handleLock} />
+	<Header 
+		nama={data?.user?.name ?? ''} 
+		{handleLock}
+		primaryColor={data.merchant.primaryColor}
+		secondaryColor={data.merchant.secondaryColor}
+	/>
 	<Sidebar primaryColor={merchant?.primaryColor ?? ''} logo={merchant?.logo ?? ''} secondaryColor={merchant?.secondaryColor ?? ''} primaryTextColor={merchant?.primaryTextColor ?? ''} secondaryTextColor={merchant?.secondaryTextColor ?? ''} />
 
 	<div class="sm:hs-overlay-layout-open:ms-64 min-h-160 transition-all duration-300 dark:bg-neutral-800">

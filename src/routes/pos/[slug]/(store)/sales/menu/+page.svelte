@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, onDestroy } from "svelte";
 	import { fly, slide } from "svelte/transition";
 	import { toast } from "$lib/stores/toast";
 	import QRCode from "qrcode";
+	import { io, type Socket } from "socket.io-client";
 
 	// Props from page data
 	let { data, form } = $props();
@@ -51,6 +52,10 @@
 	let primaryColor = $state(data.merchant?.primaryColor || "#1e40af");
 	let primaryTextColor = $state(data.merchant?.primaryTextColor || "#ffffff");
 
+	// Socket.IO state
+	let socket: Socket | null = null;
+	let cashierSessionId = $state('');
+
 	// Modal state
 	let showVariantModal = $state(false);
 	let selectedProduct = $state<any>(null);
@@ -85,6 +90,18 @@
 	let tax = $derived(taxEnabled ? Math.round(subtotal * (taxPercentage / 100)) : 0);
 	let tip = $derived(tipEnabled ? tipAmount : 0);
 	let total = $derived(subtotal + tax + tip);
+	
+	// Watch for tax/tip changes and emit updates to frontview
+	$effect(() => {
+		// This effect runs whenever taxEnabled, tipEnabled, or tipAmount changes
+		if (cart.length > 0) {
+			// Only emit if there are items in cart
+			taxEnabled; // Track dependency
+			tipEnabled; // Track dependency
+			tipAmount; // Track dependency
+			emitCartUpdate();
+		}
+	});
 
 	// Group variants by variant name
 	let groupedVariants = $derived.by(() => {
@@ -100,6 +117,44 @@
 		});
 
 		return groups;
+	});
+
+	onMount(() => {
+		// Use cashier user ID as session identifier
+		if (data.userPos?.id) {
+			cashierSessionId = `cashier-${data.userPos.id}`;
+		}
+		
+		// Initialize Socket.IO connection
+		socket = io({ path: '/socket.io' });
+		
+		socket.on('connect', () => {
+			console.log('Cashier connected to Socket.IO');
+			// Join merchant room
+			if (data.merchant?.id) {
+				socket?.emit('join-merchant', data.merchant.id);
+				socket?.emit('register-cashier', data.merchant.id, cashierSessionId);
+			}
+		});
+		
+		// Listen for cart state requests (when frontview connects/refreshes)
+		socket.on('send-cart-state', () => {
+			console.log('Sending current cart state to frontview');
+			if (socket && socket.connected) {
+				// Send current cart without payment info (unless order is in progress)
+				socket.emit('cart-state-response', cashierSessionId, cart);
+			}
+		});
+
+		socket.on('disconnect', () => {
+			console.log('Cashier disconnected from Socket.IO');
+		});
+
+		return () => {
+			if (socket) {
+				socket.disconnect();
+			}
+		};
 	});
 
 	// Manual check QRIS payment status (force check via button)
@@ -249,6 +304,51 @@
 		}, 300);
 	}
 
+	// Emit cart updates via Socket.IO
+	function emitCartUpdate() {
+		if (socket && socket.connected) {
+			// If cart has items, include current tax/tip state
+			if (cart.length > 0) {
+				socket.emit('cart-updated', data.merchant.id, cashierSessionId, cart, {
+					subtotal,
+					taxEnabled,
+					taxPercentage,
+					taxAmount: tax,
+					tipEnabled,
+					tipAmount: tip
+				});
+			} else {
+				// Empty cart, no additional info needed
+				socket.emit('cart-updated', data.merchant.id, cashierSessionId, cart);
+			}
+		}
+	}
+	
+	// Emit cart with payment info
+	function emitPaymentUpdate(method: 'cash' | 'qris', qrisQr?: string, amount?: number) {
+		if (socket && socket.connected) {
+			socket.emit('cart-updated', data.merchant.id, cashierSessionId, cart, {
+				method,
+				qrisQrUrl: qrisQr,
+				qrisAmount: amount,
+				taxEnabled,
+				taxPercentage,
+				taxAmount: tax,
+				tipEnabled,
+				tipAmount: tip,
+				subtotal
+			});
+		}
+	}
+
+
+
+	onDestroy(() => {
+		if (socket) {
+			socket.disconnect();
+		}
+	});
+
 	// Add to cart
 	function addToCart() {
 		if (!selectedProduct) return;
@@ -295,6 +395,7 @@
 		}
 
 		showVariantModal = false;
+		emitCartUpdate();
 	}
 
 	// Update cart item quantity
@@ -308,6 +409,7 @@
 			item.qty = newQty;
 			item.subtotal = item.qty * item.unitPrice;
 			cart = [...cart]; // Trigger reactivity with new array reference
+			emitCartUpdate();
 		}
 	}
 
@@ -315,6 +417,7 @@
 	function removeFromCart(itemId: string) {
 		const newCart = cart.filter((item) => item.id !== itemId);
 		cart = newCart;
+		emitCartUpdate();
 	}
 
 	// Proceed to payment
@@ -670,6 +773,8 @@
 				// Fetch full order details from API
 				await fetchOrderDetails(data.orderId);
 				showSuccessModal = true;
+				// Emit payment complete for cash - show success on frontview
+				emitPaymentUpdate('cash');
 			} else if (data.paymentMethod === 'qris') {
 				// Set QRIS data
 				qrisPaymentRequestId = data.payment_request_id;
@@ -687,7 +792,11 @@
 				if (data.qrString) {
 					qrisQrString = data.qrString;
 					QRCode.toDataURL(data.qrString, { width: 260 })
-						.then((url: string) => { qrisQrImgUrl = url; })
+						.then((url: string) => { 
+							qrisQrImgUrl = url;
+							// Emit QRIS payment to frontview with QR code
+							emitPaymentUpdate('qris', url, orderTotal);
+						})
 						.catch((err: any) => { console.error('QR generation failed:', err); });
 				}
 
@@ -848,9 +957,23 @@
 <div class="flex h-screen bg-gray-50">
 	<!-- Main content: Product grid -->
 	<div class="flex-1 overflow-y-auto p-6">
-		<div class="mb-6">
-			<h1 class="text-2xl font-bold text-gray-800">Menu</h1>
-			<p class="text-gray-600">Select items to add to cart</p>
+		<div class="mb-6 flex items-start justify-between">
+			<div>
+				<h1 class="text-2xl font-bold text-gray-800">Menu</h1>
+				<p class="text-gray-600">Select items to add to cart</p>
+			</div>
+			<a
+				href="../../../frontview"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90"
+				style="background-color: {secondaryColor};"
+			>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+				</svg>
+				Open Customer Display
+			</a>
 		</div>
 
 		<!-- Filters -->
@@ -1474,6 +1597,7 @@
 					onclick={() => {
 						showSuccessModal = false;
 						cart = [];
+						emitCartUpdate(); // Notify frontview
 						customerName = '';
 						customerPhone = '';
 						diningOption = 'pickup';
@@ -1547,6 +1671,7 @@
 					type="button"
 					onclick={() => {
 						cart = [];
+						emitCartUpdate(); // Notify frontview
 						customerName = '';
 						customerPhone = '';
 						diningOption = 'pickup';

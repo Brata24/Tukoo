@@ -389,9 +389,6 @@
 							<img src="${data.merchant.logo}" alt="Logo" class="merchant-logo" />
 						` : ''}
 						<div class="merchant-name">${data.merchant?.name || 'TUKOO POS'}</div>
-						<div class="merchant-info">
-							${data.merchant?.address || ''}
-						</div>
 					</div>
 
 					<div class="order-info">
@@ -697,8 +694,9 @@
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 			<!-- Search -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+				<label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
 				<input
+					id="search-input"
 					type="text"
 					bind:value={searchQuery}
 					oninput={handleSearchChange}
@@ -709,8 +707,9 @@
 
 			<!-- Status Filter -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+				<label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
 				<select
+					id="status-filter"
 					bind:value={statusFilter}
 					class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
@@ -723,8 +722,9 @@
 
 			<!-- Payment Status Filter -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Payment</label>
+				<label for="payment-filter" class="block text-sm font-medium text-gray-700 mb-1">Payment</label>
 				<select
+					id="payment-filter"
 					bind:value={paymentStatusFilter}
 					class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
@@ -737,8 +737,9 @@
 
 			<!-- Dining Option Filter -->
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+				<label for="type-filter" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
 				<select
+					id="type-filter"
 					bind:value={diningOptionFilter}
 					class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				>
@@ -975,8 +976,9 @@
 					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 						<!-- Order Status -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
+							<label for="order-status" class="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
 							<select
+								id="order-status"
 								value={selectedOrder.order.status}
 								onchange={(e) => updateOrderStatus(selectedOrder.order.id, 'status', e.currentTarget.value)}
 								disabled={updatingStatus}
@@ -990,8 +992,9 @@
 
 						<!-- Payment Status -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
+							<label for="payment-status" class="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
 							<select
+								id="payment-status"
 								value={selectedOrder.order.paymentStatus}
 								onchange={(e) => updateOrderStatus(selectedOrder.order.id, 'paymentStatus', e.currentTarget.value)}
 								disabled={updatingStatus}
@@ -1005,8 +1008,9 @@
 
 						<!-- Processing Status -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-2">Processing Status</label>
+							<label for="processing-status" class="block text-sm font-medium text-gray-700 mb-2">Processing Status</label>
 							<select
+								id="processing-status"
 								value={selectedOrder.order.processingStatus}
 								onchange={(e) => updateOrderStatus(selectedOrder.order.id, 'processingStatus', e.currentTarget.value)}
 								disabled={updatingStatus}

@@ -270,6 +270,18 @@ export const subscriptionPaymentRelations = relations(subscriptionPayment, ({ on
 	})
 }));
 
+// Promo Banners for Front View
+export const promoBanner = mysqlTable('promo_banner', {
+    id: int('id').primaryKey().notNull().autoincrement(),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    title: varchar('title', { length: 255 }).notNull(),
+    image: varchar('image', { length: 255 }).notNull(), // Path to banner image
+    order: int('order').notNull().default(0), // Display order (lower = first)
+    isActive: int('is_active').notNull().default(1), // 0 = inactive, 1 = active
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+});
+
 
 
 
