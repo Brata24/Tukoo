@@ -17,6 +17,7 @@ export interface MerchantData {
 
 export interface Merchant {
     id: number;
+    uuid: string;
     name: string;
     slug: string;
     address: string;

@@ -63,17 +63,21 @@
 	}
 
 	function closeModal() {
-		// Close the modal via HSOverlay
 		if (typeof window !== 'undefined' && (window as any).HSOverlay) {
 			(window as any).HSOverlay.close('#bannerModal');
 		}
+		editingBanner = null;
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+		}
+		previewUrl = null;
 	}
 
 	function closeDeleteModal() {
-		// Close the modal via HSOverlay
 		if (typeof window !== 'undefined' && (window as any).HSOverlay) {
 			(window as any).HSOverlay.close('#deleteModal');
 		}
+		deletingBanner = null;
 	}
 
 	function handleFileChange(e: Event) {
@@ -94,28 +98,28 @@
 			}
 		}, 100);
 
-	// Cleanup body overflow and reset state when modals close
-	const handleBannerModalClose = () => {
-		setTimeout(() => {
-			document.body.style.overflow = '';
-			document.body.style.removeProperty('overflow');
-			// Reset banner modal state
-			editingBanner = null;
-			if (previewUrl) {
-				URL.revokeObjectURL(previewUrl);
-			}
-			previewUrl = null;
-		}, 300);
-	};
+		// Cleanup body overflow and reset state when modals close
+		const handleBannerModalClose = () => {
+			setTimeout(() => {
+				document.body.style.overflow = '';
+				document.body.style.removeProperty('overflow');
+				editingBanner = null;
+				if (previewUrl) {
+					URL.revokeObjectURL(previewUrl);
+				}
+				previewUrl = null;
+			}, 300);
+		};
 
-	const handleDeleteModalClose = () => {
-		setTimeout(() => {
-			document.body.style.overflow = '';
-			document.body.style.removeProperty('overflow');
-			// Reset delete modal state
-			deletingBanner = null;
-		}, 300);
-	};		const bannerModal = document.querySelector('#bannerModal');
+		const handleDeleteModalClose = () => {
+			setTimeout(() => {
+				document.body.style.overflow = '';
+				document.body.style.removeProperty('overflow');
+				deletingBanner = null;
+			}, 300);
+		};
+
+		const bannerModal = document.querySelector('#bannerModal');
 		const deleteModal = document.querySelector('#deleteModal');
 		
 		if (bannerModal) {
@@ -139,7 +143,6 @@
 	$effect(() => {
 		if (form?.success) {
 			toast.success(form.message);
-			// Close modals after successful form submission
 			closeModal();
 			closeDeleteModal();
 		} else if (form?.message) {
@@ -281,7 +284,7 @@
 				</h3>
 				<button
 					type="button"
-					onclick={closeModal}
+					data-hs-overlay="#bannerModal" onclick={closeModal}
 					class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400"
 					aria-label="Close"
 				>
@@ -411,7 +414,7 @@
 					<div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700 mt-4">
 						<button
 							type="button"
-							onclick={closeModal}
+							data-hs-overlay="#bannerModal"
 							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700"
 						>
 							Cancel
@@ -453,7 +456,7 @@
 				</h3>
 				<button
 					type="button"
-					onclick={closeDeleteModal}
+					data-hs-overlay="#deleteModal"
 					class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400"
 					aria-label="Close"
 				>
@@ -485,7 +488,7 @@
 					<div class="flex justify-end items-center gap-x-2">
 						<button
 							type="button"
-							onclick={closeDeleteModal}
+							data-hs-overlay="#deleteModal"
 							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700"
 						>
 							Cancel

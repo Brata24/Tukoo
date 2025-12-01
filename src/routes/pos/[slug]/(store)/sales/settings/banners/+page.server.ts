@@ -3,8 +3,7 @@ import { db } from '$lib/server/db';
 import { promoBanner } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
-import { writeFile, unlink, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { saveUploadedFile, deleteUploadedFile } from '$lib/server/utils/file-storage';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.merchant) {
@@ -39,32 +38,40 @@ export const actions: Actions = {
 			return fail(400, { message: 'Title and image are required' });
 		}
 
-		// Save image file
-		const filename = `${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-		const filepath = join('static', 'merchants', locals.merchant.slug, 'banners', filename);
-		const uploadDir = join('static', 'merchants', locals.merchant.slug, 'banners');
-
-		try {
-			// Create directory if not exists
-			await mkdir(uploadDir, { recursive: true });
-		} catch (e) {
-			// Directory exists or error creating
+		// Validate file size (max 5MB)
+		const maxSize = 5 * 1024 * 1024;
+		if (image.size > maxSize) {
+			return fail(413, { message: 'Image size must be less than 5MB' });
 		}
 
-		const buffer = Buffer.from(await image.arrayBuffer());
-		await writeFile(filepath, buffer);
+		// Validate file type
+		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+		if (!allowedTypes.includes(image.type)) {
+			return fail(400, { message: 'Only JPEG, PNG, and WebP images are allowed' });
+		}
 
-		// Save to database
-		const imagePath = `/merchants/${locals.merchant.slug}/banners/${filename}`;
-		await db.insert(promoBanner).values({
-			merchantId: locals.merchant.id,
-			title,
-			image: imagePath,
-			order,
-			isActive
-		});
+		try {
+			// Upload to S3/CDN
+			const { publicUrl } = await saveUploadedFile(image, {
+				directory: `merchants/${locals.merchant.uuid}/banners`,
+				maxSize,
+				allowedTypes
+			});
 
-		return { success: true, message: 'Banner created successfully' };
+			// Save to database
+			await db.insert(promoBanner).values({
+				merchantId: locals.merchant.id,
+				title,
+				image: publicUrl,
+				order,
+				isActive
+			});
+
+			return { success: true, message: 'Banner created successfully' };
+		} catch (error: any) {
+			console.error('Error creating banner:', error);
+			return fail(500, { message: error.message || 'Failed to create banner' });
+		}
 	},
 
 	update: async ({ request, locals }) => {
@@ -77,20 +84,73 @@ export const actions: Actions = {
 		const title = formData.get('title') as string;
 		const order = parseInt(formData.get('order') as string) || 0;
 		const isActive = formData.get('isActive') === 'on' ? 1 : 0;
+		const image = formData.get('image') as File | null;
 
 		if (!id || !title) {
 			return fail(400, { message: 'Invalid data' });
 		}
 
+		const updateData: any = {
+			title,
+			order,
+			isActive,
+			updatedAt: new Date()
+		};
+
+		// Handle image upload if new image is provided
+		if (image && image.size > 0) {
+			// Validate file size (max 5MB)
+			const maxSize = 5 * 1024 * 1024;
+			if (image.size > maxSize) {
+				return fail(413, { message: 'Image size must be less than 5MB' });
+			}
+
+			// Validate file type
+			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+			if (!allowedTypes.includes(image.type)) {
+				return fail(400, { message: 'Only JPEG, PNG, and WebP images are allowed' });
+			}
+
+			try {
+				// Get current banner to delete old image
+				const [currentBanner] = await db
+					.select()
+					.from(promoBanner)
+					.where(and(eq(promoBanner.id, id), eq(promoBanner.merchantId, locals.merchant.id)))
+					.limit(1);
+
+				if (currentBanner) {
+					// Delete old image from S3/CDN
+					try {
+						await deleteUploadedFile(currentBanner.image);
+					} catch (e) {
+						console.error('Error deleting old image:', e);
+					}
+				}
+
+				// Upload new image to S3/CDN
+				const { publicUrl } = await saveUploadedFile(image, {
+					directory: `merchants/${locals.merchant.uuid}/banners`,
+					maxSize,
+					allowedTypes
+				});
+
+				updateData.image = publicUrl;
+			} catch (error: any) {
+				console.error('Error uploading image:', error);
+				return fail(500, { message: error.message || 'Failed to upload image' });
+			}
+		}
+
 		await db
 			.update(promoBanner)
-			.set({ title, order, isActive, updatedAt: new Date() })
+			.set(updateData)
 			.where(and(eq(promoBanner.id, id), eq(promoBanner.merchantId, locals.merchant.id)));
 
 		return { success: true, message: 'Banner updated successfully' };
 	},
 
-	delete: async ({ request, locals }) => {
+	remove: async ({ request, locals }) => {
 		if (!locals.merchant) {
 			return fail(401, { message: 'Unauthorized' });
 		}
@@ -103,17 +163,16 @@ export const actions: Actions = {
 		}
 
 		// Get banner to delete image file
-		const banner = await db
+		const [banner] = await db
 			.select()
 			.from(promoBanner)
 			.where(and(eq(promoBanner.id, id), eq(promoBanner.merchantId, locals.merchant.id)))
 			.limit(1);
 
-		if (banner.length > 0) {
-			// Delete image file
+		if (banner) {
+			// Delete image from S3/CDN
 			try {
-				const imagePath = join('static', banner[0].image);
-				await unlink(imagePath);
+				await deleteUploadedFile(banner.image);
 			} catch (e) {
 				console.error('Error deleting image file:', e);
 			}

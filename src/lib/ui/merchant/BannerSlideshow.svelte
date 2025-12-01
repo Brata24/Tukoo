@@ -64,7 +64,7 @@
 {#if banners.length === 0}
 	<div class="w-full {height} bg-gray-200 rounded-lg flex items-center justify-center">
 		<div class="text-center">
-			<div class="text-6xl mb-4">📸</div>
+			
 			<p class="text-gray-500 text-lg">No promotional banners</p>
 		</div>
 	</div>

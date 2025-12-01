@@ -1,32 +1,21 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { toast } from '$lib/stores/toast';
+	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 
-	let { data, form } = $props();
+	let { data } = $props();
 
 	let editingBanner = $state<any>(null);
-	let deletingBanner = $state<any>(null);
-	let previewUrl = $state<string | null>(null);
 	let isSubmitting = $state(false);
-
-	let secondaryColor = $state(data.merchant?.secondaryColor || '#3b82f6');
-	let secondaryTextColor = $state(data.merchant?.secondaryTextColor || '#ffffff');
-
-	$effect(() => {
-		if (data.merchant) {
-			secondaryColor = data.merchant.secondaryColor || '#3b82f6';
-			secondaryTextColor = data.merchant.secondaryTextColor || '#ffffff';
-		}
-	});
+	let previewUrl = $state<string | null>(null);
 
 	function openCreateModal() {
 		editingBanner = null;
 		previewUrl = null;
 		
 		// Reset form
-		const formEl = document.querySelector('#bannerModal form') as HTMLFormElement;
-		if (formEl) formEl.reset();
+		const form = document.querySelector('#bannerModal form') as HTMLFormElement;
+		if (form) form.reset();
 	}
 
 	function openEditModal(banner: any) {
@@ -46,34 +35,15 @@
 		}
 	}
 
-	function openDeleteModal(banner: any) {
-		deletingBanner = banner;
-		
-		const modalEl = document.getElementById('deleteModal');
-		if (!modalEl) return;
-
-		if (typeof window !== 'undefined' && (window as any).HSOverlay) {
-			try {
-				const HSOverlay = (window as any).HSOverlay;
-				new HSOverlay(modalEl).open();
-			} catch (e) {
-				console.error('Error opening modal:', e);
-			}
-		}
-	}
-
 	function closeModal() {
-		// Close the modal via HSOverlay
 		if (typeof window !== 'undefined' && (window as any).HSOverlay) {
 			(window as any).HSOverlay.close('#bannerModal');
 		}
-	}
-
-	function closeDeleteModal() {
-		// Close the modal via HSOverlay
-		if (typeof window !== 'undefined' && (window as any).HSOverlay) {
-			(window as any).HSOverlay.close('#deleteModal');
+		editingBanner = null;
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
 		}
+		previewUrl = null;
 	}
 
 	function handleFileChange(e: Event) {
@@ -94,58 +64,89 @@
 			}
 		}, 100);
 
-	// Cleanup body overflow and reset state when modals close
-	const handleBannerModalClose = () => {
-		setTimeout(() => {
-			document.body.style.overflow = '';
-			document.body.style.removeProperty('overflow');
-			// Reset banner modal state
-			editingBanner = null;
-			if (previewUrl) {
-				URL.revokeObjectURL(previewUrl);
-			}
-			previewUrl = null;
-		}, 300);
-	};
+		// Cleanup body overflow when modal closes
+		const handleModalClose = () => {
+			setTimeout(() => {
+				document.body.style.overflow = '';
+				document.body.style.removeProperty('overflow');
+			}, 300);
+		};
 
-	const handleDeleteModalClose = () => {
-		setTimeout(() => {
-			document.body.style.overflow = '';
-			document.body.style.removeProperty('overflow');
-			// Reset delete modal state
-			deletingBanner = null;
-		}, 300);
-	};		const bannerModal = document.querySelector('#bannerModal');
-		const deleteModal = document.querySelector('#deleteModal');
-		
-		if (bannerModal) {
-			bannerModal.addEventListener('close.hs.overlay', handleBannerModalClose);
-		}
-		if (deleteModal) {
-			deleteModal.addEventListener('close.hs.overlay', handleDeleteModalClose);
+		const modalEl = document.querySelector('#bannerModal');
+		if (modalEl) {
+			modalEl.addEventListener('close.hs.overlay', handleModalClose);
 		}
 
-		// Cleanup
+		// Cleanup on unmount
 		return () => {
-			if (bannerModal) {
-				bannerModal.removeEventListener('close.hs.overlay', handleBannerModalClose);
-			}
-			if (deleteModal) {
-				deleteModal.removeEventListener('close.hs.overlay', handleDeleteModalClose);
+			if (modalEl) {
+				modalEl.removeEventListener('close.hs.overlay', handleModalClose);
 			}
 		};
 	});
 
-	$effect(() => {
-		if (form?.success) {
-			toast.success(form.message);
-			// Close modals after successful form submission
-			closeModal();
-			closeDeleteModal();
-		} else if (form?.message) {
-			toast.error(form.message);
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		isSubmitting = true;
+
+		const form = e.target as HTMLFormElement;
+		const formData = new FormData(form);
+
+		try {
+			const url = `/api/merchant/${data.merchant.uuid}/banner`;
+			const method = editingBanner ? 'PUT' : 'POST';
+			
+			if (editingBanner) {
+				formData.append('id', editingBanner.id.toString());
+			}
+
+			const response = await fetch(url, {
+				method,
+				body: formData
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success(result.message);
+				closeModal();
+				await invalidateAll();
+			} else {
+				toast.error(result.error || 'Failed to save banner');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			toast.error('An error occurred');
+		} finally {
+			isSubmitting = false;
 		}
-	});
+	}
+
+	async function deleteBanner(id: number) {
+		if (!confirm('Are you sure you want to delete this banner?')) return;
+
+		try {
+			const response = await fetch(`/api/merchant/${data.merchant.uuid}/banner`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ id })
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.success(result.message);
+				await invalidateAll();
+			} else {
+				toast.error(result.error || 'Failed to delete banner');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			toast.error('An error occurred');
+		}
+	}
 </script>
 
 <div class="min-h-screen bg-gray-50 p-8">
@@ -154,19 +155,14 @@
 		<div class="flex justify-between items-center mb-8">
 			<div>
 				<h1 class="text-3xl font-bold text-gray-900">Promo Banners</h1>
-				<p class="text-gray-600 mt-2">Manage promotional banners for front view display</p>
+				<p class="text-gray-600 mt-2">Manage promotional banners for {data.merchant.name}</p>
 			</div>
 			<button
 				data-hs-overlay="#bannerModal"
 				onclick={openCreateModal}
-				class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent"
-				style="background-color: {secondaryColor}; color: {secondaryTextColor};"
+				class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
 			>
-				<svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M5 12h14"/>
-					<path d="M12 5v14"/>
-				</svg>
-				Add Banner
+				+ Add Banner
 			</button>
 		</div>
 
@@ -184,8 +180,7 @@
 					<button
 						data-hs-overlay="#bannerModal"
 						onclick={openCreateModal}
-						class="px-6 py-2 rounded-lg"
-						style="background-color: {secondaryColor}; color: {secondaryTextColor};"
+						class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
 					>
 						Add Banner
 					</button>
@@ -242,13 +237,12 @@
 									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
 										<button
 											onclick={() => openEditModal(banner)}
-											class="hover:underline mr-4"
-											style="color: {secondaryColor};"
+											class="text-blue-600 hover:text-blue-900 mr-4"
 										>
 											Edit
 										</button>
 										<button
-											onclick={() => openDeleteModal(banner)}
+											onclick={() => deleteBanner(banner.id)}
 											class="text-red-600 hover:text-red-900"
 										>
 											Delete
@@ -281,7 +275,7 @@
 				</h3>
 				<button
 					type="button"
-					onclick={closeModal}
+					data-hs-overlay="#bannerModal"
 					class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400"
 					aria-label="Close"
 				>
@@ -293,24 +287,10 @@
 				</button>
 			</div>
 
+
 			<!-- Modal Body -->
 			<div class="p-4 overflow-y-auto">
-				<form
-					method="POST"
-					action={editingBanner ? '?/update' : '?/create'}
-					enctype="multipart/form-data"
-					use:enhance={() => {
-						isSubmitting = true;
-						return async ({ update }) => {
-							await update();
-							isSubmitting = false;
-						};
-					}}
-				>
-					{#if editingBanner}
-						<input type="hidden" name="id" value={editingBanner.id} />
-					{/if}	
-
+				<form onsubmit={handleSubmit} enctype="multipart/form-data">
 					<div class="space-y-4">
 						<!-- Title -->
 						<div>
@@ -399,7 +379,8 @@
 								type="checkbox"
 								id="isActive"
 								name="isActive"
-								checked={editingBanner ? editingBanner.isActive === 1 : true}
+								value="true"
+								checked={editingBanner ? editingBanner.isActive : true}
 								class="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
 							/>
 							<label for="isActive" class="text-sm text-gray-800">
@@ -408,10 +389,11 @@
 						</div>
 					</div>
 
+
 					<div class="flex justify-end items-center gap-x-2 py-3 px-4 border-t border-gray-200 dark:border-neutral-700 mt-4">
 						<button
 							type="button"
-							onclick={closeModal}
+							data-hs-overlay="#bannerModal"
 							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700"
 						>
 							Cancel
@@ -419,8 +401,7 @@
 						<button
 							type="submit"
 							disabled={isSubmitting}
-							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
-							style="background-color: {secondaryColor}; color: {secondaryTextColor};"
+							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
 						>
 							{#if isSubmitting}
 								<span class="animate-spin inline-block w-4 h-4 border-[3px] border-current border-t-transparent text-white rounded-full" role="status" aria-label="loading"></span>
@@ -428,73 +409,6 @@
 							{:else}
 								{editingBanner ? 'Update Banner' : 'Create Banner'}
 							{/if}
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div
-	id="deleteModal"
-	class="hs-overlay hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto pointer-events-none"
-	role="dialog"
-	tabindex="-1"
-	aria-labelledby="deleteModalLabel"
->
-	<div class="hs-overlay-open:mt-7 hs-overlay-open:opacity-100 hs-overlay-open:duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto min-h-[calc(100%-56px)] flex items-center">
-		<div class="w-full flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl pointer-events-auto dark:bg-neutral-800 dark:border-neutral-700">
-			<!-- Modal Header -->
-			<div class="flex justify-between items-center py-3 px-4 border-b border-gray-200 dark:border-neutral-700">
-				<h3 id="deleteModalLabel" class="font-bold text-gray-800 dark:text-white">
-					Delete Banner
-				</h3>
-				<button
-					type="button"
-					onclick={closeDeleteModal}
-					class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:hover:bg-neutral-600 dark:text-neutral-400"
-					aria-label="Close"
-				>
-					<span class="sr-only">Close</span>
-					<svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M18 6 6 18"></path>
-						<path d="m6 6 12 12"></path>
-					</svg>
-				</button>
-			</div>
-
-			<!-- Modal Body -->
-			<div class="p-4">
-				<p class="text-gray-800 dark:text-neutral-400">
-					Are you sure you want to delete <strong>{deletingBanner?.title}</strong>? This action cannot be undone.
-				</p>
-				
-				{#if deletingBanner?.image}
-					<div class="mt-4">
-						<img src={deletingBanner.image} alt={deletingBanner.title} class="h-32 w-auto mx-auto object-contain rounded border border-gray-200" />
-					</div>
-				{/if}
-
-				<form method="POST" action="?/remove" use:enhance class="mt-6">
-					{#if deletingBanner}
-						<input type="hidden" name="id" value={deletingBanner.id} />
-					{/if}
-					
-					<div class="flex justify-end items-center gap-x-2">
-						<button
-							type="button"
-							onclick={closeDeleteModal}
-							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-hidden focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none"
-						>
-							Delete Banner
 						</button>
 					</div>
 				</form>

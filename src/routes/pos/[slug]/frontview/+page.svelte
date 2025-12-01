@@ -403,11 +403,11 @@
 		</div>
 
 		<!-- Footer -->
-		<footer class="border-t-2 p-6 text-center bg-gray-50" style="border-color: {data.merchant.primaryColor};">
+		<footer class="border-t-2 py-4 text-center bg-gray-50" style="border-color: {data.merchant.primaryColor};">
 			<p class="text-lg font-medium" style="color: {data.merchant.primaryColor};">
 				Thank you for choosing {data.merchant.name}!
 			</p>
-			<p class="text-sm text-gray-600 mt-1">We appreciate your business</p>
+			
 		</footer>
 	</div>
 </div>
