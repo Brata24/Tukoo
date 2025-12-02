@@ -146,8 +146,8 @@
 		});
 		
 		// Listen for cart updates
-		socket.on('cart-updated', (items: CartItem[] | CartItem, payment?: any) => {
-			console.log('Cart updated:', items, payment);
+		socket.on('cart-updated', (sessionId: string, items: CartItem[] | CartItem, payment?: any) => {
+			console.log('Cart updated for session:', sessionId, 'items:', items, 'payment:', payment);
 			console.log('Items type:', typeof items, 'Is array:', Array.isArray(items));
 			// Convert numeric fields to numbers
 			// Handle both single object and array
