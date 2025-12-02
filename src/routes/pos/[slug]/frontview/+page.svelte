@@ -70,6 +70,7 @@
 	};
 
 	const calculateTotal = () => {
+		if (!Array.isArray(currentItems)) return 0;
 		return currentItems.reduce((sum, item) => sum + item.subtotal, 0);
 	};
 
