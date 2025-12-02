@@ -63,12 +63,12 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	// Get summary
 	const summary = await db
 		.select({
-			totalRevenue: sql<number>`COALESCE(SUM(${order.total}), 0)`,
+			totalRevenue: sql<number>`COALESCE(SUM(${orderItem.subtotal}), 0)`,
 			totalOrders: sql<number>`COUNT(DISTINCT ${order.id})`,
 			totalItems: sql<number>`COALESCE(SUM(${orderItem.quantity}), 0)`
 		})
-		.from(order)
-		.leftJoin(orderItem, eq(orderItem.orderId, order.id))
+		.from(orderItem)
+		.innerJoin(order, eq(orderItem.orderId, order.id))
 		.where(
 			and(
 				eq(order.merchantId, merchantData.id),
