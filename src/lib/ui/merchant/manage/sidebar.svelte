@@ -305,7 +305,7 @@
 							</a>
 						</li>
 
-						<li>
+						<!-- <li>
 							<a
 								class="sidebar-link {isActive('/manage/settings')
 									? 'active'
@@ -329,7 +329,7 @@
 								>
 								Settings
 							</a>
-						</li>
+						</li> -->
 					</ul>
 				</div>
 			</nav>
