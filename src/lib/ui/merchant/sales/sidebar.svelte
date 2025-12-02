@@ -252,7 +252,7 @@
 								aria-labelledby="settings-accordion"
 							>
 								<ul class="ps-8 pt-1 space-y-1">
-									<!-- Settings items can be added here in the future -->
+									
 								</ul>
 							</div>
 						</li> -->
