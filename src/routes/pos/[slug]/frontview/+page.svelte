@@ -74,6 +74,15 @@
 		return currentItems.reduce((sum, item) => sum + item.subtotal, 0);
 	};
 
+	// Safe number parser that handles null/undefined/invalid values
+	const parseNumber = (value: any, defaultValue: number = 0): number => {
+		if (value === null || value === undefined || value === '') return defaultValue;
+		// Handle string numbers
+		const strValue = String(value).replace(/[^\d.-]/g, '');
+		const parsed = parseFloat(strValue);
+		return isNaN(parsed) ? defaultValue : parsed;
+	};
+
 	onMount(() => {
 		// Listen for fullscreen changes
 		const handleFullscreenChange = () => {
@@ -101,48 +110,62 @@
 		// Listen for initial cart state (on refresh/reconnect)
 		socket.on('cart-state', (items: CartItem[] | CartItem, payment?: any) => {
 			console.log('Received current cart state:', items, payment);
+			console.log('Items type:', typeof items, 'Is array:', Array.isArray(items));
 			// Convert numeric fields to numbers
 			// Handle both single object and array
 			const itemsArray = Array.isArray(items) ? items : (items ? [items] : []);
-			currentItems = itemsArray.map(item => ({
-				...item,
-				productId: Number(item.productId),
-				variantId: item.variantId ? Number(item.variantId) : null,
-				unitPrice: Number(item.unitPrice),
-				qty: Number(item.qty),
-				subtotal: Number(item.subtotal)
-			}));
+			console.log('Items array:', itemsArray);
+			currentItems = itemsArray.map(item => {
+				console.log('Processing item:', item);
+				const processed = {
+					...item,
+					productId: parseNumber(item.productId),
+					variantId: item.variantId ? parseNumber(item.variantId) : null,
+					unitPrice: parseNumber(item.unitPrice),
+					qty: parseNumber(item.qty),
+					subtotal: parseNumber(item.subtotal)
+				};
+				console.log('Processed item:', processed);
+				return processed;
+			});
 			
 			// Handle payment info if present
 			if (payment) {
 				paymentMethod = payment.method;
 				qrisQrUrl = payment.qrisQrUrl || null;
-				qrisAmount = Number(payment.qrisAmount) || 0;
+				qrisAmount = parseNumber(payment.qrisAmount);
 				showOrderComplete = true;
 				
-				orderSubtotal = Number(payment.subtotal) || 0;
+				orderSubtotal = parseNumber(payment.subtotal);
 				orderTaxEnabled = payment.taxEnabled || false;
-				orderTaxPercentage = Number(payment.taxPercentage) || 0;
-				orderTaxAmount = Number(payment.taxAmount) || 0;
+				orderTaxPercentage = parseNumber(payment.taxPercentage);
+				orderTaxAmount = parseNumber(payment.taxAmount);
 				orderTipEnabled = payment.tipEnabled || false;
-				orderTipAmount = Number(payment.tipAmount) || 0;
+				orderTipAmount = parseNumber(payment.tipAmount);
 			}
 		});
 		
 		// Listen for cart updates
 		socket.on('cart-updated', (items: CartItem[] | CartItem, payment?: any) => {
 			console.log('Cart updated:', items, payment);
+			console.log('Items type:', typeof items, 'Is array:', Array.isArray(items));
 			// Convert numeric fields to numbers
 			// Handle both single object and array
 			const itemsArray = Array.isArray(items) ? items : (items ? [items] : []);
-			currentItems = itemsArray.map(item => ({
-				...item,
-				productId: Number(item.productId),
-				variantId: item.variantId ? Number(item.variantId) : null,
-				unitPrice: Number(item.unitPrice),
-				qty: Number(item.qty),
-				subtotal: Number(item.subtotal)
-			}));
+			console.log('Items array:', itemsArray);
+			currentItems = itemsArray.map(item => {
+				console.log('Processing item:', item);
+				const processed = {
+					...item,
+					productId: parseNumber(item.productId),
+					variantId: item.variantId ? parseNumber(item.variantId) : null,
+					unitPrice: parseNumber(item.unitPrice),
+					qty: parseNumber(item.qty),
+					subtotal: parseNumber(item.subtotal)
+				};
+				console.log('Processed item:', processed);
+				return processed;
+			});
 			
 			// Handle payment info
 			if (payment) {
@@ -151,17 +174,17 @@
 					// This is a payment completion event
 					paymentMethod = payment.method;
 					qrisQrUrl = payment.qrisQrUrl || null;
-					qrisAmount = Number(payment.qrisAmount) || 0;
+					qrisAmount = parseNumber(payment.qrisAmount);
 					showOrderComplete = true;
 				}
 				
 				// Always update order details (tax/tip info)
-				orderSubtotal = Number(payment.subtotal) || 0;
+				orderSubtotal = parseNumber(payment.subtotal);
 				orderTaxEnabled = payment.taxEnabled || false;
-				orderTaxPercentage = Number(payment.taxPercentage) || 0;
-				orderTaxAmount = Number(payment.taxAmount) || 0;
+				orderTaxPercentage = parseNumber(payment.taxPercentage);
+				orderTaxAmount = parseNumber(payment.taxAmount);
 				orderTipEnabled = payment.tipEnabled || false;
-				orderTipAmount = Number(payment.tipAmount) || 0;
+				orderTipAmount = parseNumber(payment.tipAmount);
 			} else {
 				// Reset if cart is cleared without payment
 				if (itemsArray.length === 0) {
