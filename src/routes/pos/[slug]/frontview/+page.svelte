@@ -99,21 +99,19 @@
 		});
 
 		// Listen for initial cart state (on refresh/reconnect)
-		socket.on('cart-state', (items: CartItem[], payment?: any) => {
+		socket.on('cart-state', (items: CartItem[] | CartItem, payment?: any) => {
 			console.log('Received current cart state:', items, payment);
 			// Convert numeric fields to numbers
-			if (Array.isArray(items)) {
-				currentItems = items.map(item => ({
-					...item,
-					productId: Number(item.productId),
-					variantId: item.variantId ? Number(item.variantId) : null,
-					unitPrice: Number(item.unitPrice),
-					qty: Number(item.qty),
-					subtotal: Number(item.subtotal)
-				}));
-			} else {
-				currentItems = [];
-			}
+			// Handle both single object and array
+			const itemsArray = Array.isArray(items) ? items : (items ? [items] : []);
+			currentItems = itemsArray.map(item => ({
+				...item,
+				productId: Number(item.productId),
+				variantId: item.variantId ? Number(item.variantId) : null,
+				unitPrice: Number(item.unitPrice),
+				qty: Number(item.qty),
+				subtotal: Number(item.subtotal)
+			}));
 			
 			// Handle payment info if present
 			if (payment) {
@@ -132,21 +130,19 @@
 		});
 		
 		// Listen for cart updates
-		socket.on('cart-updated', (items: CartItem[], payment?: any) => {
+		socket.on('cart-updated', (items: CartItem[] | CartItem, payment?: any) => {
 			console.log('Cart updated:', items, payment);
 			// Convert numeric fields to numbers
-			if (Array.isArray(items)) {
-				currentItems = items.map(item => ({
-					...item,
-					productId: Number(item.productId),
-					variantId: item.variantId ? Number(item.variantId) : null,
-					unitPrice: Number(item.unitPrice),
-					qty: Number(item.qty),
-					subtotal: Number(item.subtotal)
-				}));
-			} else {
-				currentItems = [];
-			}
+			// Handle both single object and array
+			const itemsArray = Array.isArray(items) ? items : (items ? [items] : []);
+			currentItems = itemsArray.map(item => ({
+				...item,
+				productId: Number(item.productId),
+				variantId: item.variantId ? Number(item.variantId) : null,
+				unitPrice: Number(item.unitPrice),
+				qty: Number(item.qty),
+				subtotal: Number(item.subtotal)
+			}));
 			
 			// Handle payment info
 			if (payment) {
@@ -168,7 +164,7 @@
 				orderTipAmount = Number(payment.tipAmount) || 0;
 			} else {
 				// Reset if cart is cleared without payment
-				if (items.length === 0) {
+				if (itemsArray.length === 0) {
 					paymentMethod = null;
 					qrisQrUrl = null;
 					qrisAmount = 0;
