@@ -113,7 +113,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	doc.text(`Generated: ${new Date().toLocaleDateString('id-ID')}`, 14, 32);
 
 	// Prepare table data
-	const tableData = salesReport.map((item, index) => [
+	const tableData: any[] = salesReport.map((item, index) => [
 		String(index + 1),
 		item.productName,
 		item.categoryName,
@@ -128,7 +128,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		{ content: String(Number(summary[0]?.totalItems || 0)), styles: { fontStyle: 'bold' } },
 		{ content: formatCurrency(Number(summary[0]?.totalRevenue || 0)), styles: { fontStyle: 'bold' } },
 		{ content: String(Number(summary[0]?.totalOrders || 0)), styles: { fontStyle: 'bold' } }
-	]);
+	] as any);
 
 	// Add table
 	autoTable(doc, {

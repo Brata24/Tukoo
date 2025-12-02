@@ -128,7 +128,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		{ content: String(Number(summary[0]?.totalItems || 0)), styles: { fontStyle: 'bold' } },
 		{ content: formatCurrency(Number(summary[0]?.totalRevenue || 0)), styles: { fontStyle: 'bold' } },
 		{ content: String(Number(summary[0]?.totalOrders || 0)), styles: { fontStyle: 'bold' } }
-	]);
+	] as any);
 
 	// Add table
 	autoTable(doc, {
