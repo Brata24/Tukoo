@@ -102,14 +102,18 @@
 		socket.on('cart-state', (items: CartItem[], payment?: any) => {
 			console.log('Received current cart state:', items, payment);
 			// Convert numeric fields to numbers
-			currentItems = items.map(item => ({
-				...item,
-				productId: Number(item.productId),
-				variantId: item.variantId ? Number(item.variantId) : null,
-				unitPrice: Number(item.unitPrice),
-				qty: Number(item.qty),
-				subtotal: Number(item.subtotal)
-			}));
+			if (Array.isArray(items)) {
+				currentItems = items.map(item => ({
+					...item,
+					productId: Number(item.productId),
+					variantId: item.variantId ? Number(item.variantId) : null,
+					unitPrice: Number(item.unitPrice),
+					qty: Number(item.qty),
+					subtotal: Number(item.subtotal)
+				}));
+			} else {
+				currentItems = [];
+			}
 			
 			// Handle payment info if present
 			if (payment) {
@@ -131,14 +135,18 @@
 		socket.on('cart-updated', (items: CartItem[], payment?: any) => {
 			console.log('Cart updated:', items, payment);
 			// Convert numeric fields to numbers
-			currentItems = items.map(item => ({
-				...item,
-				productId: Number(item.productId),
-				variantId: item.variantId ? Number(item.variantId) : null,
-				unitPrice: Number(item.unitPrice),
-				qty: Number(item.qty),
-				subtotal: Number(item.subtotal)
-			}));
+			if (Array.isArray(items)) {
+				currentItems = items.map(item => ({
+					...item,
+					productId: Number(item.productId),
+					variantId: item.variantId ? Number(item.variantId) : null,
+					unitPrice: Number(item.unitPrice),
+					qty: Number(item.qty),
+					subtotal: Number(item.subtotal)
+				}));
+			} else {
+				currentItems = [];
+			}
 			
 			// Handle payment info
 			if (payment) {
