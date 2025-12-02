@@ -194,7 +194,7 @@
 							</a>
 						</li>
 
-						<li class="hs-accordion" id="settings-accordion">
+						<!-- <li class="hs-accordion" id="settings-accordion">
 							<button
 								type="button"
 								class="sidebar-link hs-accordion-toggle {isActive('/sales/settings')
@@ -255,7 +255,7 @@
 									<!-- Settings items can be added here in the future -->
 								</ul>
 							</div>
-						</li>
+						</li> -->
 					</ul>
 				</div>
 			</nav>
