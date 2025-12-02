@@ -360,7 +360,7 @@
 				{:else if currentItems.length > 0}
 					<!-- Cart Items -->
 					<div class="space-y-3 mb-6">
-						{#each currentItems as item, index (`${item.productId}-${item.variantId || 'no-variant'}-${index}`)}
+						{#each currentItems as item (item.id)}
 							<div class="bg-white rounded-xl shadow-sm border-2 p-4 animate-fade-in hover:shadow-md transition-shadow" style="border-color: {data.merchant.primaryColor}20;">
 								<div class="flex items-start gap-4">
 									<!-- Quantity Badge -->
