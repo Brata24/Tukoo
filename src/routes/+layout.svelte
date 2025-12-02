@@ -6,8 +6,9 @@
 	import "../app.css";
 
 	afterNavigate(() => {
-		
-		window.HSStaticMethods.autoInit();
+		if (typeof window !== 'undefined' && window.HSStaticMethods?.autoInit) {
+			window.HSStaticMethods.autoInit();
+		}
 	});
 
 	// Example: Show a welcome toast on page load
