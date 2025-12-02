@@ -22,10 +22,10 @@ export async function load(event: RequestEvent) {
 		return redirect(302, "/forgot-password");
 	}
 	if (!session.emailVerified) {
-		return redirect(302, "/reset-password/verify-email");
+		return redirect(302, "/auth/reset-password/verify-email");
 	}
 	if (user.registered2FA && !session.twoFactorVerified) {
-		return redirect(302, "/reset-password/2fa");
+		return redirect(302, "/auth/reset-password/2fa");
 	}
 	return {};
 }
