@@ -95,7 +95,7 @@ async function totpAction(event: RequestEvent) {
 	}
 	totpBucket.reset(session.userId);
 	setPasswordResetSessionAs2FAVerified(session.id);
-	return redirect(302, "/reset-password");
+	return redirect(302, "/auth/reset-password");
 }
 
 async function recoveryCodeAction(event: RequestEvent) {
