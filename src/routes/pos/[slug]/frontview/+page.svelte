@@ -168,7 +168,17 @@
 			});
 			
 			// Handle payment info
+			console.log('Payment object received:', payment);
 			if (payment) {
+				console.log('Processing payment:', {
+					subtotal: payment.subtotal,
+					taxEnabled: payment.taxEnabled,
+					taxPercentage: payment.taxPercentage,
+					taxAmount: payment.taxAmount,
+					tipEnabled: payment.tipEnabled,
+					tipAmount: payment.tipAmount
+				});
+				
 				// Check if this is a payment completion (has method) or just cart update with tax/tip
 				if (payment.method) {
 					// This is a payment completion event
@@ -180,11 +190,20 @@
 				
 				// Always update order details (tax/tip info)
 				orderSubtotal = parseNumber(payment.subtotal);
-				orderTaxEnabled = payment.taxEnabled || false;
+				orderTaxEnabled = payment.taxEnabled !== undefined ? payment.taxEnabled : orderTaxEnabled;
 				orderTaxPercentage = parseNumber(payment.taxPercentage);
 				orderTaxAmount = parseNumber(payment.taxAmount);
-				orderTipEnabled = payment.tipEnabled || false;
+				orderTipEnabled = payment.tipEnabled !== undefined ? payment.tipEnabled : orderTipEnabled;
 				orderTipAmount = parseNumber(payment.tipAmount);
+				
+				console.log('Updated order details:', {
+					orderSubtotal,
+					orderTaxEnabled,
+					orderTaxPercentage,
+					orderTaxAmount,
+					orderTipEnabled,
+					orderTipAmount
+				});
 			} else {
 				// Reset if cart is cleared without payment
 				if (itemsArray.length === 0) {
