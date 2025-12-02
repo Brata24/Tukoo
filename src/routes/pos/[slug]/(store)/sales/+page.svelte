@@ -67,6 +67,21 @@
 					Track your sales performance and insights
 				</p>
 			</div>
+			<div>
+				<a
+					href="/sales/report"
+					class="inline-flex items-center gap-x-2 py-2.5 px-4 text-sm font-medium rounded-lg border border-transparent shadow-sm hover:shadow-md transition-all focus:outline-hidden"
+					style="background-color: {data.merchant.secondaryColor}; color: {data.merchant.secondaryTextColor};"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 3v18h18"/>
+						<path d="M18 17V9"/>
+						<path d="M13 17V5"/>
+						<path d="M8 17v-3"/>
+					</svg>
+					View Sales Report
+				</a>
+			</div>
 		</div>
 
 		<!-- Stats Grid -->
