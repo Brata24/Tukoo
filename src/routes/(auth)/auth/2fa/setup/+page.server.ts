@@ -55,7 +55,7 @@ async function skip2FA(event: RequestEvent) {
 	}
 	
 	updateUser2FASettings(event.locals.session.userId, false);
-	return redirect(302, "/");
+	return redirect(302, "/dashboard");
 }
 
 async function action2fa(event: RequestEvent) {

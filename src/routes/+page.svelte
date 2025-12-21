@@ -108,8 +108,8 @@
 
 			<!-- CTA Buttons -->
 			<div class="hidden lg:flex items-center gap-3">
-				<a href="/auth/signup" class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30">
-					Start Free Trial
+				<a href={data.user ? '/dashboard' : '/auth/signup'} class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30">
+					{data.user ? 'Go to Dashboard' : 'Start Free Trial'}
 				</a>
 			</div>				<!-- Mobile Menu Button -->
 				<button 
@@ -136,7 +136,7 @@
 						<a href="#pricing" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Pricing</a>
 					<a href="#testimonials" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Testimonials</a>
 					<a href="/auth/login" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Sign In</a>
-					<a href="/auth/signup" class="px-3 py-2 text-center text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold">Start Free Trial</a>
+					<a href={data.user ? '/dashboard' : '/auth/signup'} class="px-3 py-2 text-center text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold">{data.user ? 'Go to Dashboard' : 'Start Free Trial'}</a>
 				</div>
 			</div>
 			{/if}
@@ -171,8 +171,8 @@
 					</p>
 
 					<div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
-						<a href="/auth/signup" class="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2">
-							Start Free Trial
+						<a href={data.user ? '/dashboard' : '/auth/signup'} class="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2">
+							{data.user ? 'Go to Dashboard' : 'Start Free Trial'}
 							<i class="bi bi-arrow-right group-hover:translate-x-1 transition-transform"></i>
 						</a>
 						<a href="#demo" class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-2">
@@ -464,8 +464,8 @@
 			</p>
 			
 			<div class="flex flex-col sm:flex-row gap-4 justify-center">
-				<a href="/auth/signup" class="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-					Start Your Free Trial
+				<a href={data.user ? '/dashboard' : '/auth/signup'} class="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+					{data.user ? 'Go to Dashboard' : 'Start Your Free Trial'}
 					<i class="bi bi-arrow-right group-hover:translate-x-1 transition-transform"></i>
 				</a>
 				<a href="#contact" class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold hover:bg-white hover:text-blue-600 transition-all flex items-center justify-center gap-2">

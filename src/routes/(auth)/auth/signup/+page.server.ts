@@ -3,7 +3,7 @@ import { checkEmailAvailability, verifyEmailInput } from "$lib/server/auth-handl
 import { createUser, verifyUsernameInput } from "$lib/server/auth-handler/user";
 import { RefillingTokenBucket } from "$lib/server/auth-handler/rate-limit";
 import { verifyPasswordStrength } from "$lib/server/auth-handler/base/password";
-import { createSession, generateSessionToken, setSessionTokenCookie } from "$lib/server/auth-handler/session";
+import { createSession, generateSessionToken, setSessionTokenCookie, invalidateSession, deleteSessionTokenCookie } from "$lib/server/auth-handler/session";
 import {
 	createEmailVerificationRequest,
 	sendVerificationEmail,
@@ -17,8 +17,11 @@ const ipBucket = new RefillingTokenBucket<string>(3, 10);
 
 export function load(event: PageServerLoadEvent) {
 	if (event.locals.session !== null && event.locals.user !== null) {
+		// If user has unverified email (coming back from verify-email page), clear session
 		if (!event.locals.user.emailVerified) {
-			return redirect(302, "/auth/verify-email");
+			invalidateSession(event.locals.session.id);
+			deleteSessionTokenCookie(event);
+			return {};
 		}
 		if (!event.locals.user.registered2FA) {
 			return redirect(302, "/auth/2fa/setup");
@@ -105,16 +108,30 @@ async function action(event: RequestEvent) {
 			username
 		});
 	}
-	const user = await createUser(email, username, password, fullname, phone, true);
-	const emailVerificationRequest = await createEmailVerificationRequest(user.id, user.email);
-	sendVerificationEmail(emailVerificationRequest.email, fullname, emailVerificationRequest.code, emailVerificationRequest.expiresAt);
-	setEmailVerificationRequestCookie(event, emailVerificationRequest);
+	
+	try {
+		const user = await createUser(email, username, password, fullname, phone, true);
+		const emailVerificationRequest = await createEmailVerificationRequest(user.id, user.email);
+		sendVerificationEmail(emailVerificationRequest.email, fullname, emailVerificationRequest.code, emailVerificationRequest.expiresAt);
+		setEmailVerificationRequestCookie(event, emailVerificationRequest);
 
-	const sessionFlags: SessionFlags = {
-		twoFactorVerified: false
-	};
-	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, user.id, sessionFlags);
-	setSessionTokenCookie(event, sessionToken, session.expiresAt);
-	throw redirect(302, "/auth/2fa/setup");
+		const sessionFlags: SessionFlags = {
+			twoFactorVerified: false
+		};
+		const sessionToken = generateSessionToken();
+		const session = await createSession(sessionToken, user.id, sessionFlags);
+		setSessionTokenCookie(event, sessionToken, session.expiresAt);
+		throw redirect(302, "/auth/2fa/setup");
+	} catch (error: any) {
+		
+		if (error.code === 'ER_DUP_ENTRY' || error.message?.includes('Duplicate entry')) {
+			return fail(400, {
+				message: "This email is already registered. Please use a different email or try logging in.",
+				email,
+				username
+			});
+		}
+		
+		throw error;
+	}
 }

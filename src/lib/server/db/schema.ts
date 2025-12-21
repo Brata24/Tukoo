@@ -64,7 +64,7 @@ export const userPos = mysqlTable('user_pos', {
     id: int('id').primaryKey().notNull().autoincrement(),
     name: varchar('name', { length: 255 }).notNull(),
     username: varchar('username', { length: 255 }).notNull().unique(),
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     password: varchar('password', { length: 255 }).notNull(),
     role: varchar('role', { length: 50 }).notNull().default('staff'),
     lastLogin: timestamp('last_login'),
@@ -74,14 +74,14 @@ export const userPos = mysqlTable('user_pos', {
 
 export const sessionPos = mysqlTable('session_pos', {
     id: varchar('id', { length: 255 }).primaryKey().notNull(),
-    userPosId: int('user_pos_id').notNull().references(() => userPos.id),
+    userPosId: int('user_pos_id').notNull().references(() => userPos.id, { onDelete: 'cascade' }),
     expiresAt: int('expires_at').notNull(),
 });
 
 export const category = mysqlTable('category', {
     id: int('id').primaryKey().notNull().autoincrement(),
     name: varchar('name', { length: 100 }).notNull(),
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });
@@ -94,8 +94,8 @@ export const product = mysqlTable('product', {
     stock: int('stock').notNull().default(0),
     infiniteStock: int('infinite_stock').notNull().default(0), // 0 = finite, 1 = infinite
     photo: varchar('photo', { length: 255 }).default('').notNull(),
-    categoryId: int('category_id').notNull().references(() => category.id),
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    categoryId: int('category_id').notNull().references(() => category.id, { onDelete: 'cascade' }),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     isActive: int('is_active').notNull().default(1),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
@@ -103,7 +103,7 @@ export const product = mysqlTable('product', {
 
 export const productVariant = mysqlTable('product_variant', {
     id: int('id').primaryKey().notNull().autoincrement(),
-    productId: int('product_id').notNull().references(() => product.id),
+    productId: int('product_id').notNull().references(() => product.id, { onDelete: 'cascade' }),
     variantName: varchar('variant_name', { length: 100 }).notNull(), // e.g., "Size", "Serving"
     variantValue: varchar('variant_value', { length: 100 }).notNull(), // e.g., "M", "Hot"
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -117,7 +117,7 @@ export const restaurantTable = mysqlTable('restaurant_table', {
     qrToken: varchar('qr_token', { length: 36 }).notNull().unique().$defaultFn(() => uuidv4()), // UUID for QR code, can be regenerated
     isActive: int('is_active').notNull().default(1), // 0 = inactive, 1 = active
     allowPayAtCashier: int('allow_pay_at_cashier').notNull().default(1), // 0 = disabled, 1 = enabled
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });
@@ -126,7 +126,7 @@ export const order = mysqlTable('order', {
     id: int('id').primaryKey().notNull().autoincrement(),
     uuid: varchar('uuid', { length: 36 }).notNull().unique().$defaultFn(() => uuidv4()),
     orderNumber: varchar('order_number', { length: 50 }).notNull().unique(), // e.g., "ORD-001-20250115"
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     userPosId: int('user_pos_id').references(() => userPos.id), // Cashier who created the order
     tableId: int('table_id').references(() => restaurantTable.id), // null if pickup
     diningOption: varchar('dining_option', { length: 20 }).notNull(), // 'pickup' or 'dinein'
@@ -147,10 +147,10 @@ export const order = mysqlTable('order', {
 
 export const orderItem = mysqlTable('order_item', {
     id: int('id').primaryKey().notNull().autoincrement(),
-    orderId: int('order_id').notNull().references(() => order.id),
-    productId: int('product_id').notNull().references(() => product.id),
+    orderId: int('order_id').notNull().references(() => order.id, { onDelete: 'cascade' }),
+    productId: int('product_id'), // No FK - keeps historical product ID even after deletion
     productName: varchar('product_name', { length: 255 }).notNull(), // Snapshot of product name at time of order
-    variantId: int('variant_id').references(() => productVariant.id), // null if no variant
+    variantId: int('variant_id'), // No FK - keeps historical variant ID even after deletion
     variantName: varchar('variant_name', { length: 100 }), // e.g., "Size"
     variantValue: varchar('variant_value', { length: 100 }), // e.g., "Large"
     quantity: int('quantity').notNull(),
@@ -162,7 +162,7 @@ export const orderItem = mysqlTable('order_item', {
 export const payment = mysqlTable('payment', {
     id: int('id').primaryKey().notNull().autoincrement(),
     uuid: varchar('uuid', { length: 36 }).notNull().unique().$defaultFn(() => uuidv4()),
-    orderId: int('order_id').notNull().references(() => order.id),
+    orderId: int('order_id').notNull().references(() => order.id, { onDelete: 'cascade' }),
     paymentMethod: varchar('payment_method', { length: 20 }).notNull(), // 'cash' or 'qris'
     amount: int('amount').notNull(), // in cents
     status: varchar('status', { length: 20 }).notNull().default('PENDING'), // 'PENDING', 'SUCCEEDED', 'FAILED', 'CANCELED', 'EXPIRED'
@@ -180,11 +180,11 @@ export const payment = mysqlTable('payment', {
 
 export const cartItem = mysqlTable('cart_item', {
     id: int('id').primaryKey().notNull().autoincrement(),
-    userPosId: int('user_pos_id').notNull().references(() => userPos.id), // POS user who owns this cart
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
-    productId: int('product_id').notNull().references(() => product.id),
+    userPosId: int('user_pos_id').notNull().references(() => userPos.id, { onDelete: 'cascade' }), // Cascade delete - removes cart when user deleted
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }), // Cascade delete - removes cart when merchant deleted
+    productId: int('product_id').references(() => product.id, { onDelete: 'cascade' }), // Cascade delete - removes cart item when product deleted
     productName: varchar('product_name', { length: 255 }).notNull(),
-    variantId: int('variant_id').references(() => productVariant.id),
+    variantId: int('variant_id').references(() => productVariant.id, { onDelete: 'cascade' }), // Cascade delete - removes cart item when variant deleted
     variantName: varchar('variant_name', { length: 100 }),
     variantValue: varchar('variant_value', { length: 100 }),
     unitPrice: int('unit_price').notNull(),
@@ -273,7 +273,7 @@ export const subscriptionPaymentRelations = relations(subscriptionPayment, ({ on
 // Promo Banners for Front View
 export const promoBanner = mysqlTable('promo_banner', {
     id: int('id').primaryKey().notNull().autoincrement(),
-    merchantId: int('merchant_id').notNull().references(() => merchant.id),
+    merchantId: int('merchant_id').notNull().references(() => merchant.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 255 }).notNull(),
     image: varchar('image', { length: 255 }).notNull(), // Path to banner image
     order: int('order').notNull().default(0), // Display order (lower = first)

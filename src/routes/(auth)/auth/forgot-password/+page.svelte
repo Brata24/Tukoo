@@ -60,5 +60,6 @@
 	</form>
 	<div class="mt-4 text-sm space-y-1">
 		<p>Remembered your password? <a href="/auth/login" class="text-blue-600 hover:text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline opacity-90">Sign in</a></p>
+		<p>Not your account? <a href="/auth/login" class="text-blue-600 hover:text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline opacity-90">Sign in again</a></p>
 	</div>
 </div>

@@ -4,16 +4,23 @@ import {
 	createPasswordResetSession,
 	invalidateUserPasswordResetSessions,
 	sendPasswordResetEmail,
-	setPasswordResetSessionTokenCookie
+	setPasswordResetSessionTokenCookie,
+	deletePasswordResetSessionTokenCookie
 } from "$lib/server/auth-handler/password-reset";
 import { RefillingTokenBucket } from "$lib/server/auth-handler/rate-limit";
 import { generateSessionToken } from "$lib/server/auth-handler/session";
 import { fail, redirect } from "@sveltejs/kit";
 
-import type { Actions, RequestEvent } from "./$types";
+import type { Actions, RequestEvent, PageServerLoadEvent } from "./$types";
 
 const ipBucket = new RefillingTokenBucket<string>(3, 60);
 const userBucket = new RefillingTokenBucket<number>(3, 60);
+
+export async function load(event: PageServerLoadEvent) {
+	// Clear any existing password reset session
+	deletePasswordResetSessionTokenCookie(event);
+	return {};
+}
 
 export const actions: Actions = {
 	"forgot-psw": action

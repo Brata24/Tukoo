@@ -11,6 +11,7 @@ import {
 import { invalidateUserPasswordResetSessions } from "$lib/server/auth-handler/password-reset";
 import { updateUserEmailAndSetEmailAsVerified } from "$lib/server/auth-handler/user";
 import { ExpiringTokenBucket } from "$lib/server/auth-handler/rate-limit";
+import { invalidateSession, deleteSessionTokenCookie } from "$lib/server/auth-handler/session";
 
 import type { Actions, RequestEvent } from "./$types";
 
@@ -38,7 +39,8 @@ const bucket = new ExpiringTokenBucket<number>(5, 60 * 30);
 
 export const actions: Actions = {
 	verify: verifyCode,
-	resend: resendEmail
+	resend: resendEmail,
+	logout: logoutAction
 };
 
 async function verifyCode(event: RequestEvent) {
@@ -97,7 +99,7 @@ async function verifyCode(event: RequestEvent) {
 	}
 	if (Date.now() >= verificationRequest.expiresAt.getTime()) {
 	verificationRequest = await createEmailVerificationRequest(verificationRequest.userId, verificationRequest.email);
-	await sendVerificationEmail(verificationRequest.email, verificationRequest.code, verificationRequest.expiresAt);
+	sendVerificationEmail(verificationRequest.email, verificationRequest.code, verificationRequest.expiresAt);
 		return {
 			verify: {
 				message: "The verification code was expired. We sent another code to your inbox."
@@ -111,16 +113,19 @@ async function verifyCode(event: RequestEvent) {
 			}
 		});
 	}
-	deleteUserEmailVerificationRequest(event.locals.user.id);
-	invalidateUserPasswordResetSessions(event.locals.user.id);
-	updateUserEmailAndSetEmailAsVerified(event.locals.user.id, verificationRequest.email);
+	await deleteUserEmailVerificationRequest(event.locals.user.id);
+	await invalidateUserPasswordResetSessions(event.locals.user.id);
+	await updateUserEmailAndSetEmailAsVerified(event.locals.user.id, verificationRequest.email);
 	deleteEmailVerificationRequestCookie(event);
+	console.log(event.locals.user)
 	if (event.locals.user.enabled2FA) {
 		if (!event.locals.user.registered2FA) {
 			return redirect(302, "/auth/2fa/setup");
 		}
+	} else {
+		return redirect(302, "/dashboard");
 	}
-	return redirect(302, "/");
+	
 }
 
 async function resendEmail(event: RequestEvent) {
@@ -180,4 +185,13 @@ async function resendEmail(event: RequestEvent) {
 			message: "A new code was sent to your inbox."
 		}
 	};
+}
+
+async function logoutAction(event: RequestEvent) {
+	if (event.locals.session !== null) {
+		invalidateSession(event.locals.session.id);
+	}
+	deleteSessionTokenCookie(event);
+	deleteEmailVerificationRequestCookie(event);
+	return redirect(302, "/auth/signup");
 }

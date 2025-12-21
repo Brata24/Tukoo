@@ -97,7 +97,7 @@
 		{/if}
 	</form>
 
-	<div class="mt-6 text-center sm:text-left">
+	<div class="mt-6 text-center sm:text-left space-y-2">
 		<form method="post" use:enhance action="?/resend" class="inline">
 			<p class="inline-block text-sm sm:text-base text-gray-600">Not receiving the email?</p>
 			<button
@@ -109,5 +109,12 @@
 		{#if form?.resend?.message}
 			<p class="text-green-600 mt-2 text-sm sm:text-base">{form.resend.message}</p>
 		{/if}
+		
+		<div>
+			<form method="post" action="?/logout" use:enhance class="inline">
+				<span class="text-sm sm:text-base text-gray-600">Wrong email address? </span>
+				<button type="submit" class="text-blue-600 hover:text-blue-500 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium text-sm sm:text-base">Sign up again</button>
+			</form>
+		</div>
 	</div>
 </div>
