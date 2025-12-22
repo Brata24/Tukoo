@@ -103,7 +103,9 @@
 				<a href="#features" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</a>
 				<a href="#pricing" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Pricing</a>
 				<a href="#testimonials" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Testimonials</a>
-				<a href="/auth/login" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Sign In</a>
+				{#if !data.user}
+					<a href="/auth/login" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Sign In</a>
+				{/if}
 				</div>
 
 			<!-- CTA Buttons -->
@@ -135,7 +137,9 @@
 						<a href="#features" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Features</a>
 						<a href="#pricing" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Pricing</a>
 					<a href="#testimonials" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Testimonials</a>
+				{#if !data.user}
 					<a href="/auth/login" class="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Sign In</a>
+				{/if}
 					<a href={data.user ? '/dashboard' : '/auth/signup'} class="px-3 py-2 text-center text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-semibold">{data.user ? 'Go to Dashboard' : 'Start Free Trial'}</a>
 				</div>
 			</div>
