@@ -385,8 +385,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 For issues, questions, or suggestions:
 
 - 📧 Email: support@tukoo.web.id
-- 🐛 Issues: [GitHub Issues](https://github.com/D-cat1/tukoo/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/D-cat/tukoo/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/Brata24/tukoo/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/Brata24/tukoo/discussions)
 
 ---
 

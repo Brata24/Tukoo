@@ -3,6 +3,7 @@ node_modules
 # Output
 .output
 .vercel
+drizzle/
 /.svelte-kit
 /build
 /static/documents
