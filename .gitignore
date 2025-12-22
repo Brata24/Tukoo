@@ -11,11 +11,18 @@ node_modules
 /static/products/
 /static/uploads/
 /static/profile/
+*.ino
 # OS
 .DS_Store
+TEST_*
+vitest.config.ts
+verif.html
+hehe
 Thumbs.db
-
+*.sql
 # Env
+.ipynb
+*.ipynb
 .env
 .env.*
 !.env.example
