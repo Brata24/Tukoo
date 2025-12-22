@@ -1,1 +1,0 @@
-ALTER TABLE `merchant` ADD `sales_dashboard_locked` int DEFAULT 0 NOT NULL;
