@@ -252,7 +252,7 @@ POST   /pos/:slug/api/self-order/place-order # Place order
 GET    /pos/:slug/api/self-order/track/:uuid # Track order
 ```
 
-Full API documentation available in [docs/API_PAYMENT_DOCUMENTATION.md](docs/API_PAYMENT_DOCUMENTATION.md)
+<!-- Full API documentation available in [docs/API_PAYMENT_DOCUMENTATION.md](docs/API_PAYMENT_DOCUMENTATION.md) -->
 
 ---
 
@@ -271,7 +271,7 @@ The system uses MySQL with the following main entities:
 - **RestaurantTable** - Tables with QR codes
 - **Subscription** - Merchant subscriptions
 
-See [docs/CLASS_DIAGRAM.md](docs/CLASS_DIAGRAM.md) for complete entity relationships.
+<!-- See [docs/CLASS_DIAGRAM.md](docs/CLASS_DIAGRAM.md) for complete entity relationships. -->
 
 ---
 
@@ -372,6 +372,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🙏 Acknowledgments
 
+- **Mata Kuliah IMPAL** - This project is developed as an experimental environment for Software Implementation and Testing course
 - **SvelteKit** - For the amazing framework
 - **Drizzle Team** - For the excellent ORM
 - **Xendit/Pakasir** - For payment gateway integration
