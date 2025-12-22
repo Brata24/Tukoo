@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1762965544728,
+      "tag": "0000_aberrant_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1763401724317,
+      "tag": "0001_serious_omega_sentinel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763405686086,
+      "tag": "0002_lumpy_gravity",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763432699493,
+      "tag": "0003_fine_cable",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1764035134702,
+      "tag": "0004_cynical_blink",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1764587127235,
+      "tag": "0005_oval_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1766331313767,
+      "tag": "0006_nifty_obadiah_stane",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1766331561221,
+      "tag": "0007_volatile_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1766334838626,
+      "tag": "0008_sharp_maelstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1766335034899,
+      "tag": "0009_calm_ozymandias",
+      "breakpoints": true
+    }
+  ]
+}
